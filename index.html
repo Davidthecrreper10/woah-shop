@@ -199,6 +199,9 @@
   .bank { white-space: pre-line; background: var(--soft); padding: 10px 12px; margin: 8px 0; font-weight: 600; }
   .proof { margin: 10px 0 18px; }
   .proof .btn { cursor: pointer; }
+  .help { font-size: 14.5px; color: var(--muted); margin: 18px 0; }
+  .help a { color: var(--navy); }
+  .help.sm { border-top: 1px dashed var(--line); padding-top: 10px; margin: 12px 0 0; font-size: 13.5px; }
   .proofok { display: flex; align-items: center; gap: 12px; margin-top: 10px; font-weight: 700; color: var(--ok); }
   .proofok img { width: 64px; height: 64px; object-fit: cover; border: 1px solid var(--line); }
   .oc-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
@@ -238,7 +241,7 @@
     <img src="img/logo-white.png" alt="WOAH Festival" width="140" height="66">
     <div class="tag-line">Designed and sold by students</div>
     <div>World Ocean Ambassadors Hangout · Green School Bali</div>
-    <div style="margin-top:6px">Questions? <a href="mailto:woahfestival@greenschool.org">woahfestival@greenschool.org</a></div>
+    <div style="margin-top:6px" id="footHelp">Questions? <a href="mailto:woahfestival@greenschool.org">woahfestival@greenschool.org</a></div>
   </div>
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -266,6 +269,7 @@ function load() {
       const changed = JSON.stringify(res.data.products) !== JSON.stringify(CAT && CAT.products);
       CAT = res.data; try { localStorage.setItem('woahShopCat', JSON.stringify(CAT)); } catch (e) {}
       if (changed) route(true);
+      drawFooter();
     }).catch(err => { if (!CAT) { document.getElementById('view').innerHTML = `<div class="wrap err"><div class="empty"><b>The shop couldn't load right now.</b><br>${esc(err.message)}<br><br><button class="btn solid" onclick="load()">Try again</button></div></div>`; } });
 }
 
@@ -388,6 +392,13 @@ try { BAG = JSON.parse(localStorage.getItem('woahBag') || '[]'); TOKEN = localSt
 function saveBag() { try { localStorage.setItem('woahBag', JSON.stringify(BAG)); } catch (e) {} drawBagCount(); }
 function drawBagCount() { const n = BAG.reduce((s, l) => s + l.qty, 0), el = document.getElementById('bagN'); if (el) el.textContent = n; }
 function canOrder() { return !!(CAT && CAT.settings && CAT.settings.open); }
+function phoneText() { const n = settings().whatsapp; return n ? '+' + n.replace(/^(\d{2})(\d{3})(\d{4})(\d+)$/, '$1 $2 $3 $4') : ''; }
+function contactLine(order) {
+  const ph = phoneText();
+  return `For any changes or inquiries${order ? ' about <b>' + esc(order) + '</b>' : ''}, email us at <a href="mailto:${esc(settings().contact)}">${esc(settings().contact)}</a>${ph ? ` or text us on ${esc(ph)}` : ''}.`;
+}
+function contactHTML(order, short) { return `<div class="help${short ? ' sm' : ''}">${contactLine(order)}</div>`; }
+function drawFooter() { const el = document.getElementById('footHelp'); if (el) el.innerHTML = contactLine(''); }
 function settings() { return (CAT && CAT.settings) || { collect: { spirit: 'Spirit Friday', shanti: 'Shanti House' }, contact: 'woahfestival@greenschool.org' }; }
 function api(body) {
   return fetch(API, { method: 'POST', credentials: 'omit', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
@@ -579,7 +590,7 @@ function donePage(id) {
       <div class="kv"><div><span>Collect at</span>${esc(d.collect)}</div><div><span>Payment</span>${esc(d.payText)}</div></div>
     </div>
     ${d.pay === 'cash' ? `<h3 class="h3">How to pay</h3>${payInfo('cash', d.total, '')}` : (d.paid === 'Proof sent' ? '<div class="note"><b>Payment screenshot received.</b> We\'ll check it and confirm your payment.</div>' : `<h3 class="h3">How to pay</h3>${payHTML({ order: d.order, pay: d.pay, proofSent: false }, d.total, d.contact)}`)}
-    <div class="note">${d.items.some(i => i.type === 'Pre-order') ? 'Pre-order items: we\'ll let you know when they arrive and are ready to collect. ' : ''}You can check your order any time under <a href="#/orders">My orders</a> with your order number and ${d.email ? 'email' : 'phone'}.</div>`);
+    <div class="note">${d.items.some(i => i.type === 'Pre-order') ? 'Pre-order items: we\'ll let you know when they arrive and are ready to collect. ' : ''}You can check your order any time under <a href="#/orders">My orders</a> with your order number and ${d.email ? 'email' : 'phone'}.</div>${contactHTML(d.order)}`);
 }
 
 // ---- my orders ----
@@ -590,7 +601,7 @@ function orderCard(o, contact) {
   return `<div class="box oc"><div class="oc-h"><div><b class="big">${esc(o.order)}</b><div class="muted">${new Date(o.placed).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div></div>${statusChip(o.status)}</div>
     ${itemsHTML(o.items)}<div class="tot"><span>Total</span><b>${rp(o.total)}</b></div>
     <div class="kv"><div><span>Collect at</span>${esc(o.collect)}</div><div><span>Payment</span>${esc(o.pay)} · ${o.paid === 'Yes' ? '<b class="good">Paid</b>' : o.paid === 'Proof sent' ? 'Checking your payment' : /cash/i.test(o.pay) ? 'Pay at pick-up' : '<b class="bad">Not paid yet</b>'}</div></div>
-    ${needPay ? `<details class="pay"><summary>How to pay</summary>${payHTML(o, o.total, contact)}</details>` : ''}</div>`;
+    ${needPay ? `<details class="pay"><summary>How to pay</summary>${payHTML(o, o.total, contact)}</details>` : ''}${contactHTML(o.order, true)}</div>`;
 }
 function ordersPage() {
   if (TOKEN) {
@@ -608,7 +619,7 @@ function ordersPage() {
         <div class="field"><label for="lkC">Email or phone you used</label><input id="lkC"></div>
         <button class="btn solid wide" onclick="lookUp()">Find my order</button><div class="fmsg" id="lkMsg"></div></div>
       <div class="box"><h3 class="h3" style="margin-top:0">Have an account?</h3>${loginHTML('ordersPage')}<div class="fmsg" id="accMsg"></div></div>
-    </div><div id="lkOut"></div>`);
+    </div><div id="lkOut"></div>${contactHTML('')}`);
 }
 function lookUp() {
   const o = val('lkO'), c = val('lkC');
@@ -637,6 +648,7 @@ function route(fromData) {
 }
 window.addEventListener('hashchange', () => { document.getElementById('toast').classList.remove('on'); route(); });
 drawBagCount();
+drawFooter();
 load();
 </script>
 </body>
