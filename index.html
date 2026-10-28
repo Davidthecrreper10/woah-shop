@@ -199,6 +199,8 @@
   .bank { white-space: pre-line; background: var(--soft); padding: 10px 12px; margin: 8px 0; font-weight: 600; }
   .proof { margin: 10px 0 18px; }
   .proof .btn { cursor: pointer; }
+  .proofok { display: flex; align-items: center; gap: 12px; margin-top: 10px; font-weight: 700; color: var(--ok); }
+  .proofok img { width: 64px; height: 64px; object-fit: cover; border: 1px solid var(--line); }
   .oc-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
   .st { font-family: "Oswald", sans-serif; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; padding: 5px 10px; background: var(--soft); color: var(--navy); white-space: nowrap; }
   .st-ready-to-collect { background: var(--teal); color: #fff; } .st-collected { background: var(--ok); color: #fff; } .st-cancelled { background: #eee; color: var(--muted); } .st-waiting-for-stock { background: var(--pale); }
@@ -377,7 +379,7 @@ function qty(key, by) { STATE[key].qty = Math.max(1, STATE[key].qty + by); produ
 const PAY = {
   qris: { t: 'QRIS', d: 'Scan with any banking or e-wallet app (GoPay, OVO, DANA, bank apps…).' },
   xendit: { t: 'Card / e-wallet (Xendit)', d: 'Pay online by card or e-wallet on the WOAH payment page.' },
-  transfer: { t: 'Bank transfer', d: 'Transfer to the WOAH account. You\'ll see the details after ordering.' },
+  transfer: { t: 'Bank transfer', d: 'Transfer to the WOAH account. The details show below.' },
   cash: { t: 'Cash at pick-up', d: 'Pay in cash when you collect.' }
 };
 const ROLES = ['Student', 'Parent', 'Staff', 'Other'];
@@ -498,6 +500,9 @@ function checkoutPage(keep) {
         <div class="cards">${Object.keys(s.collect).map(k => `<button class="rc ${CK.collect === k ? 'on' : ''}" onclick="ckSet('collect','${k}')"><b>${esc(k === 'spirit' ? 'Spirit Friday' : 'Shanti House')}</b><span>${esc(s.collect[k])}</span></button>`).join('')}</div>
         <h3 class="h3">3 · How will you pay?</h3>
         <div class="cards">${Object.keys(PAY).filter(k => k !== 'transfer' || s.bank).map(k => `<button class="rc ${CK.pay === k ? 'on' : ''}" onclick="ckSet('pay','${k}')"><b>${PAY[k].t}</b><span>${PAY[k].d}</span></button>`).join('')}</div>
+        ${CK.pay && CK.pay !== 'cash' ? `<h3 class="h3">4 · Pay, then upload your screenshot</h3>${payInfo(CK.pay, bagTotal(), esc((ACC ? ACC.name : CK.fName) || 'your name'))}
+          <div class="proof"><label class="btn wide ${CK.proof ? '' : 'solid'}">${CK.proof ? 'Change screenshot' : 'Upload payment screenshot *'}<input type="file" accept="image/*" hidden onchange="ckProof(this)"></label>
+          ${CK.proof ? `<div class="proofok"><img src="${CK.proof.data}" alt="Your payment screenshot"><span>Screenshot added ✓</span></div>` : '<div class="hint">We need a screenshot of your payment to confirm it. Your order is placed once it\'s uploaded.</div>'}<div class="fmsg" id="prMsg"></div></div>` : ''}
         <div class="field" style="margin-top:18px"><label for="fNote">Anything we should know? (optional)</label><textarea id="fNote" rows="2" placeholder="e.g. it's a gift, or which Spirit Friday suits you">${esc(CK.fNote || '')}</textarea></div>
         <input type="text" id="fWeb" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">` : ''}
       </div>
@@ -509,6 +514,11 @@ function checkoutPage(keep) {
     </div>`);
   if (keep) window.scrollTo(0, y);
 }
+function ckProof(input) {
+  const f = input.files && input.files[0]; input.value = ''; if (!f) return;
+  msg('prMsg', 'Adding…');
+  shrinkImg(f).then(r => { CK.proof = r; checkoutPage(true); }).catch(e => msg('prMsg', e.message, true));
+}
 function placeOrder() {
   if (BUSY) return;
   ckKeep();
@@ -517,10 +527,11 @@ function placeOrder() {
   if (!buyer.cemail && buyer.phone.replace(/\D/g, '').length < 8) return msg('ckMsg', 'Please give your email or phone number.', true);
   if (!CK.collect) return msg('ckMsg', 'Pick where you\'ll collect.', true);
   if (!CK.pay) return msg('ckMsg', 'Pick how you\'ll pay.', true);
+  if (CK.pay !== 'cash' && !CK.proof) return msg('ckMsg', 'Please pay first and upload a screenshot of the payment.', true);
   BUSY = true; msg('ckMsg', 'Placing your order…'); const b = document.getElementById('placeBtn'); if (b) b.disabled = true;
-  api({ action: 'shopOrder', buyer, pay: CK.pay, collect: CK.collect, note: CK.fNote || '', cart: BAG, token: TOKEN || undefined, website: val('fWeb') })
+  api({ action: 'shopOrder', buyer, pay: CK.pay, collect: CK.collect, note: CK.fNote || '', cart: BAG, token: TOKEN || undefined, website: val('fWeb'), proof: CK.pay !== 'cash' && CK.proof ? { type: CK.proof.type, data: CK.proof.data } : undefined })
     .then(d => {
-      BUSY = false; BAG = []; saveBag();
+      BUSY = false; BAG = []; saveBag(); CK.proof = null;
       d.contact = buyer.cemail || buyer.phone;
       try { localStorage.setItem('woahLastOrder', JSON.stringify(d)); } catch (e) {}
       CAT && load();
@@ -530,15 +541,19 @@ function placeOrder() {
 }
 
 // ---- after ordering + paying ----
-function payHTML(o, total, contact) {
-  const s = settings(), ref = esc(o.order);
-  const pay = o.pay || '';
-  const proofBox = `<div class="proof" id="proof-${ref}"><label class="btn wide">Upload payment screenshot<input type="file" accept="image/*" hidden onchange="sendProof('${ref}', this, '${esc(contact || '')}')"></label><div class="fmsg" id="pm-${ref}">${o.proofSent ? 'Screenshot received. We\'ll confirm your payment soon.' : 'After paying, send us the screenshot so we can match it to your order.'}</div></div>`;
+function payInfo(pay, total, ref) {
+  const s = settings(), amt = Number(total).toLocaleString('en-US');
   if (/cash/i.test(pay)) return `<div class="note">Pay <b>${rp(total)}</b> in cash when you collect.</div>`;
-  if (/qris/i.test(pay)) return `<div class="paybox"><img class="qr" src="img/qris.png" alt="WOAH QRIS code" width="240" height="240"><div><b>Scan to pay ${rp(total)}</b><br>Open any banking or e-wallet app, scan the code and type <b>${Number(total).toLocaleString('en-US')}</b> as the amount. It pays to Yayasan Kul Kul (Green School). If there's a note field, write <b>${ref}</b>.</div></div>${proofBox}`;
-  if (/xendit|card/i.test(pay)) return `<div class="paybox"><div><b>Pay ${rp(total)} online</b><br>Open the WOAH payment page, type <b>${Number(total).toLocaleString('en-US')}</b> as the amount and add <b>${ref}</b> in the description.</div><a class="btn solid" href="${esc(s.xendit || '#')}" target="_blank" rel="noopener">Open payment page ↗</a></div>${proofBox}`;
-  if (/transfer/i.test(pay)) return `<div class="paybox"><div><b>Transfer ${rp(total)}</b><br><div class="bank">${esc(s.bank || 'Bank details coming soon. We\'ll message you.')}</div>Put <b>${ref}</b> in the transfer note.</div></div>${proofBox}`;
+  if (/qris/i.test(pay)) return `<div class="paybox"><img class="qr" src="img/qris.png" alt="WOAH QRIS code" width="240" height="240"><div><b>Scan to pay ${rp(total)}</b><br>Open any banking or e-wallet app, scan the code and type <b>${amt}</b> as the amount. It pays to Yayasan Kul Kul (Green School). If there's a note field, write <b>${ref}</b>.</div></div>`;
+  if (/xendit|card/i.test(pay)) return `<div class="paybox"><div><b>Pay ${rp(total)} online</b><br>Open the WOAH payment page, type <b>${amt}</b> as the amount and add <b>${ref}</b> in the description.</div><a class="btn solid" href="${esc(s.xendit || '#')}" target="_blank" rel="noopener">Open payment page ↗</a></div>`;
+  if (/transfer/i.test(pay)) return `<div class="paybox"><div><b>Transfer ${rp(total)}</b><br><div class="bank">${esc(s.bank || 'Bank details coming soon.')}</div>Put <b>${ref}</b> in the transfer note.</div></div>`;
   return '';
+}
+function payHTML(o, total, contact) {
+  const ref = esc(o.order);
+  if (/cash/i.test(o.pay || '')) return payInfo(o.pay, total, ref);
+  const proofBox = `<div class="proof" id="proof-${ref}"><label class="btn wide">${o.proofSent ? 'Send another screenshot' : 'Upload payment screenshot'}<input type="file" accept="image/*" hidden onchange="sendProof('${ref}', this, '${esc(contact || '')}')"></label><div class="fmsg" id="pm-${ref}">${o.proofSent ? 'Screenshot received. We\'ll confirm your payment soon.' : 'After paying, send us the screenshot so we can match it to your order.'}</div></div>`;
+  return payInfo(o.pay, total, ref) + proofBox;
 }
 function sendProof(order, input, contact) {
   const f = input.files && input.files[0]; input.value = ''; if (!f) return;
@@ -563,7 +578,7 @@ function donePage(id) {
       ${itemsHTML(d.items)}<div class="tot"><span>Total</span><b>${rp(d.total)}</b></div>
       <div class="kv"><div><span>Collect at</span>${esc(d.collect)}</div><div><span>Payment</span>${esc(d.payText)}</div></div>
     </div>
-    <h3 class="h3">How to pay</h3>${payHTML({ order: d.order, pay: d.pay, proofSent: d.paid === 'Proof sent' }, d.total, d.contact)}
+    ${d.pay === 'cash' ? `<h3 class="h3">How to pay</h3>${payInfo('cash', d.total, '')}` : (d.paid === 'Proof sent' ? '<div class="note"><b>Payment screenshot received.</b> We\'ll check it and confirm your payment.</div>' : `<h3 class="h3">How to pay</h3>${payHTML({ order: d.order, pay: d.pay, proofSent: false }, d.total, d.contact)}`)}
     <div class="note">${d.items.some(i => i.type === 'Pre-order') ? 'Pre-order items: we\'ll let you know when they arrive and are ready to collect. ' : ''}You can check your order any time under <a href="#/orders">My orders</a> with your order number and ${d.email ? 'email' : 'phone'}.</div>`);
 }
 
