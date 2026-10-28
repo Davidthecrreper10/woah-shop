@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WOAH Shop · WOAH Festival merch</title>
+<meta name="description" content="Official WOAH Festival merch. Buy what's in stock or pre-order the new collection. Every purchase supports the festival.">
+<meta name="theme-color" content="#04212F">
+<link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<script>try { const t = localStorage.getItem('woahShopTheme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<style>
+  :root {
+    --navy: #04212F; --sand: #F5F1E8; --coral: #FF7A4D; --coral-ink: #C9461F; --shallows: #35D6CE; --sea: #0B7C77; --sun: #FFC61E;
+    --bg: #F5F1E8; --card: #FFFFFF; --card-2: #FBF9F4; --ink: #04212F; --muted: #4E6873; --line: #E4DCCB; --line-2: #D6CCB6;
+    --accent: #C9461F; --accent-soft: #FFE9DF; --on-accent: #FFFFFF; --ok: #0B7C77; --ok-soft: #DDF5F3; --warn: #8A5A00; --warn-soft: #FFF3CC; --bad: #B42A2A; --bad-soft: #FBE3E1;
+    --shadow: 0 1px 2px rgba(4,33,47,.05), 0 8px 24px rgba(4,33,47,.07); --shadow-up: 0 4px 10px rgba(4,33,47,.08), 0 18px 40px rgba(4,33,47,.12);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #04212F; --card: #0A2C3D; --card-2: #0D3346; --ink: #F5F1E8; --muted: #9DB4BD; --line: #17455B; --line-2: #22566E;
+    --accent: #FF7A4D; --accent-soft: #3A2620; --on-accent: #04212F; --ok: #35D6CE; --ok-soft: #0E3C47; --warn: #FFC61E; --warn-soft: #3A3112; --bad: #FF8A7A; --bad-soft: #43201E;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 8px 22px rgba(0,0,0,.22); --shadow-up: 0 4px 10px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.35); color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #04212F; --card: #0A2C3D; --card-2: #0D3346; --ink: #F5F1E8; --muted: #9DB4BD; --line: #17455B; --line-2: #22566E;
+    --accent: #FF7A4D; --accent-soft: #3A2620; --on-accent: #04212F; --ok: #35D6CE; --ok-soft: #0E3C47; --warn: #FFC61E; --warn-soft: #3A3112; --bad: #FF8A7A; --bad-soft: #43201E;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 8px 22px rgba(0,0,0,.22); --shadow-up: 0 4px 10px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.35); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  button { font: inherit; cursor: pointer; }
+  img { max-width: 100%; display: block; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .display { font-family: "Bricolage Grotesque", "Public Sans", sans-serif; font-weight: 800; letter-spacing: -.02em; }
+  :focus-visible { outline: 3px solid var(--shallows); outline-offset: 2px; border-radius: 6px; }
+
+  /* top bar (always navy, like the festival) */
+  .bar { position: sticky; top: 0; z-index: 20; background: rgba(4,33,47,.94); backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px); color: var(--sand); border-bottom: 1px solid rgba(53,214,206,.18); }
+  .bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .brand img { height: 40px; width: auto; }
+  .brand span { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 700; letter-spacing: .14em; color: var(--shallows); border-left: 1px solid rgba(245,241,232,.25); padding-left: 10px; }
+  .bar nav { display: flex; align-items: center; gap: 4px; }
+  .bar nav a, .bar nav button { color: var(--sand); text-decoration: none; background: none; border: 0; padding: 8px 12px; border-radius: 999px; font-size: 14px; font-weight: 600; }
+  .bar nav a:hover, .bar nav button:hover { background: rgba(245,241,232,.08); }
+  .bar .bag { display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(245,241,232,.25) !important; }
+  .bar .bag b { background: var(--coral); color: var(--navy); font-family: "JetBrains Mono", monospace; font-size: 11px; min-width: 20px; height: 20px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; }
+  .bar .thm { width: 38px; height: 38px; padding: 0 !important; display: inline-flex !important; align-items: center; justify-content: center; }
+  @media (max-width: 640px) { .bar nav .hide-s { display: none; } .brand span { display: none; } .brand img { height: 34px; } }
+
+  /* hero */
+  .hero { background: var(--navy); color: var(--sand); position: relative; overflow: hidden; }
+  .hero .wrap { position: relative; z-index: 1; padding-top: 56px; padding-bottom: 96px; display: grid; grid-template-columns: 1.2fr .8fr; gap: 24px; align-items: center; }
+  .hero .kicker { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: .16em; color: var(--shallows); font-weight: 700; }
+  .hero h1 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; text-transform: uppercase; font-size: clamp(40px, 7vw, 76px); line-height: .92; letter-spacing: -.03em; margin: 12px 0 16px; }
+  .hero h1 em { font-style: normal; color: var(--coral); }
+  .hero p { max-width: 520px; color: rgba(245,241,232,.82); font-size: 17px; margin: 0 0 24px; }
+  .cta { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; padding: 13px 22px; font-weight: 700; font-size: 15px; text-decoration: none; border: 1.5px solid transparent; transition: transform .15s, box-shadow .15s, background .15s; }
+  .btn:active { transform: translateY(1px); }
+  .btn.coral { background: var(--coral); color: var(--navy); }
+  .btn.coral:hover { box-shadow: 0 8px 22px rgba(255,122,77,.35); }
+  .btn.ghost { border-color: rgba(245,241,232,.35); color: var(--sand); }
+  .btn.ghost:hover { background: rgba(245,241,232,.08); }
+  .btn.solid { background: var(--accent); color: var(--on-accent); }
+  .btn[disabled] { opacity: .55; cursor: not-allowed; box-shadow: none !important; }
+  .hero-logo { justify-self: end; width: min(100%, 380px); filter: drop-shadow(0 18px 40px rgba(0,0,0,.35)); animation: bob 6s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(-8px) rotate(-1deg); } }
+  .waves { position: absolute; left: 0; right: 0; bottom: -1px; height: 90px; z-index: 0; }
+  .waves svg { width: 100%; height: 100%; display: block; }
+  @media (max-width: 760px) { .hero .wrap { grid-template-columns: 1fr; padding-top: 36px; padding-bottom: 80px; } .hero-logo { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .hero-logo { animation: none; } html { scroll-behavior: auto; } }
+
+  /* sections */
+  main { padding-bottom: 60px; }
+  .sec { padding-top: 44px; scroll-margin-top: 70px; }
+  .sec-h { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .sec-h h2 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; text-transform: uppercase; font-size: clamp(26px, 4vw, 36px); line-height: 1; letter-spacing: -.02em; margin: 6px 0 0; }
+  .sec-h .kicker { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: .14em; font-weight: 700; color: var(--accent); }
+  .sec-h p { margin: 6px 0 0; color: var(--muted); max-width: 560px; }
+  .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  @media (max-width: 520px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+  .empty { background: var(--card); border: 1px dashed var(--line-2); border-radius: 18px; padding: 28px; text-align: center; color: var(--muted); }
+
+  /* product cards */
+  .pc { background: var(--card); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s; }
+  .pc:hover { transform: translateY(-3px); box-shadow: var(--shadow-up); }
+  .pc .ph { aspect-ratio: 4 / 5; position: relative; overflow: hidden; background: var(--card-2); }
+  .pc .ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+  .pc:hover .ph img { transform: scale(1.04); }
+  .pc .tags { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; gap: 6px; }
+  .tag { font-family: "JetBrains Mono", monospace; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; padding: 4px 9px; border-radius: 999px; background: var(--card); color: var(--ink); box-shadow: 0 1px 4px rgba(4,33,47,.15); white-space: nowrap; }
+  .tag.pre { background: var(--sun); color: var(--navy); }
+  .tag.low { background: var(--coral); color: var(--navy); }
+  .tag.out { background: var(--navy); color: var(--sand); }
+  .pc .info { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .pc .nm { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 18px; line-height: 1.15; }
+  .pc .pr { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 14px; }
+  .pc .sub { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: auto; padding-top: 6px; color: var(--muted); font-size: 13px; }
+  .dots { display: flex; gap: 5px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--line-2); }
+  .pc.soldout .ph img, .pc.soldout .ph .art { filter: grayscale(.85) opacity(.7); }
+  @media (max-width: 520px) { .pc .nm { font-size: 15px; } .pc .info { padding: 10px 12px 12px; } .pc .sub { font-size: 12px; } }
+
+  /* placeholder art when a product has no photo yet */
+  .art { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px; color: var(--sand); background:
+    radial-gradient(120% 80% at 100% 0%, rgba(53,214,206,.45), transparent 60%), radial-gradient(90% 70% at 0% 100%, rgba(255,122,77,.55), transparent 60%), var(--navy); }
+  .art b { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; text-transform: uppercase; font-size: 26px; line-height: .95; letter-spacing: -.02em; }
+  .art small { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .14em; color: var(--shallows); margin-bottom: 6px; }
+  .art svg { position: absolute; right: -10px; top: 14px; width: 60%; opacity: .25; }
+
+  /* skeleton */
+  .sk { background: linear-gradient(90deg, var(--card) 0%, var(--card-2) 50%, var(--card) 100%); background-size: 200% 100%; animation: sk 1.3s infinite linear; border-radius: 20px; border: 1px solid var(--line); aspect-ratio: 4 / 6; }
+  @keyframes sk { to { background-position: -200% 0; } }
+
+  /* product page */
+  .back { display: inline-flex; align-items: center; gap: 6px; margin: 22px 0 14px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 14px; }
+  .back:hover { color: var(--ink); }
+  .pp { display: grid; grid-template-columns: 1.1fr .9fr; gap: 36px; align-items: start; }
+  @media (max-width: 860px) { .pp { grid-template-columns: 1fr; gap: 20px; } }
+  .gal { position: sticky; top: 84px; }
+  @media (max-width: 860px) { .gal { position: static; } }
+  .gal .main { aspect-ratio: 4 / 5; border-radius: 22px; overflow: hidden; background: var(--card-2); position: relative; border: 1px solid var(--line); }
+  .gal .main img { width: 100%; height: 100%; object-fit: cover; }
+  .gal .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(245,241,232,.9); color: var(--navy); font-size: 18px; box-shadow: var(--shadow); }
+  .gal .nav.l { left: 10px; } .gal .nav.r { right: 10px; }
+  .thumbs { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px; }
+  .thumbs button { flex: 0 0 72px; height: 72px; border-radius: 12px; overflow: hidden; border: 2px solid transparent; padding: 0; background: var(--card-2); }
+  .thumbs button.on { border-color: var(--accent); }
+  .thumbs img { width: 100%; height: 100%; object-fit: cover; }
+  .pp h1 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: clamp(30px, 4.5vw, 46px); line-height: 1; letter-spacing: -.02em; margin: 10px 0 10px; text-transform: uppercase; }
+  .pp .price { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 22px; }
+  .pp .desc { color: var(--muted); margin: 14px 0 0; white-space: pre-line; }
+  .opt { margin-top: 22px; }
+  .opt .lbl { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .opt .lbl span { color: var(--muted); font-weight: 600; text-transform: none; letter-spacing: 0; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { min-width: 52px; padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--line-2); background: var(--card); color: var(--ink); font-weight: 600; font-size: 14px; position: relative; }
+  .chip:hover:not([disabled]) { border-color: var(--ink); }
+  .chip.on { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); box-shadow: inset 0 0 0 1px var(--accent); }
+  .chip[disabled] { opacity: .4; text-decoration: line-through; cursor: not-allowed; }
+  .chip .sw { display: inline-block; width: 16px; height: 16px; border-radius: 50%; vertical-align: -3px; margin-right: 7px; border: 1.5px solid var(--line-2); }
+  .chip small { display: block; font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--muted); font-weight: 500; }
+  .qty { display: inline-flex; align-items: center; border: 1.5px solid var(--line-2); border-radius: 12px; overflow: hidden; }
+  .qty button { width: 42px; height: 44px; border: 0; background: var(--card); color: var(--ink); font-size: 18px; }
+  .qty span { min-width: 40px; text-align: center; font-family: "JetBrains Mono", monospace; font-weight: 700; }
+  .buy { display: flex; gap: 10px; margin-top: 26px; flex-wrap: wrap; align-items: center; }
+  .buy .btn { flex: 1 1 220px; padding: 15px 22px; font-size: 16px; }
+  .note { margin-top: 14px; padding: 12px 14px; border-radius: 14px; font-size: 14px; background: var(--card); border: 1px solid var(--line); }
+  .note.pre { background: var(--warn-soft); border-color: transparent; color: var(--ink); }
+  .note b { font-weight: 700; }
+  .stockline { margin-top: 8px; font-size: 14px; font-weight: 600; }
+  .stockline.low { color: var(--accent); } .stockline.out { color: var(--bad); } .stockline.ok { color: var(--ok); }
+
+  /* footer + toast */
+  footer { background: var(--navy); color: rgba(245,241,232,.8); padding: 36px 0 calc(36px + env(safe-area-inset-bottom)); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items: center; }
+  footer img { height: 46px; width: auto; }
+  footer a { color: var(--shallows); }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 20px); opacity: 0; visibility: hidden; transition: transform .3s, opacity .3s, visibility .3s; background: var(--navy); color: var(--sand); padding: 12px 18px; border-radius: 14px; box-shadow: var(--shadow-up); z-index: 50; max-width: calc(100% - 32px); font-size: 14px; border: 1px solid rgba(53,214,206,.3); }
+  .toast.on { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
+  .err { margin-top: 30px; }
+  .fade { animation: fade .35s ease both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#/" aria-label="WOAH Shop home"><img src="img/logo-dark.webp" alt="WOAH Festival" width="84" height="38"><span>SHOP</span></a>
+    <nav>
+      <a class="hide-s" href="#/current">Shop now</a>
+      <a class="hide-s" href="#/preorder">Pre-order</a>
+      <button class="thm" id="thm" onclick="toggleTheme()" aria-label="Switch light or dark"></button>
+      <button class="bag" onclick="bagSoon()" aria-label="Your bag"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>Bag <b id="bagN">0</b></button>
+    </nav>
+  </div>
+</header>
+<div id="view"></div>
+<footer>
+  <div class="wrap">
+    <div style="display:flex;align-items:center;gap:14px"><img src="img/logo-dark.webp" alt="WOAH Festival" width="100" height="46"><div>World Ocean Ambassadors Hangout<br><span style="color:rgba(245,241,232,.6)">Run by students at Green School Bali</span></div></div>
+    <div>Questions? <a href="mailto:woahfestival@greenschool.org">woahfestival@greenschool.org</a><br><span style="color:rgba(245,241,232,.6)">Every purchase helps fund the festival.</span></div>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzAV1IE_Y6-IlgkQh3MGRTc6aspuaZSu00y5QXu_8R8e1nTgch3XUhUyFR2wdqgZICg/exec';
+const ORDERING_OPEN = false;   // stage 2 turns on the bag + checkout
+const LOW = 3;
+const SWATCH = { white: '#FFFFFF', black: '#111418', green: '#2E8B57', blue: '#1F6FD1', navy: '#0B2545', red: '#D7263D', grey: '#9AA5AB', gray: '#9AA5AB', pink: '#F49AC1', yellow: '#FFC61E', orange: '#FF7A4D', purple: '#7B5CD6', brown: '#7A5230', beige: '#E8DCC2', cream: '#F4EBD9', sand: '#E5D3B3', teal: '#35D6CE', olive: '#708238', khaki: '#BDB07A', charcoal: '#36454F', maroon: '#7A1E2C' };
+let CAT = null, STATE = {};
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function rp(n) { return 'Rp ' + Number(n || 0).toLocaleString('id-ID'); }
+function toast(t) { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 3200); }
+function bagSoon() { toast('Ordering opens very soon. Have a look around for now!'); }
+
+// ---- theme ----
+function isDark() { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+function drawThm() { document.getElementById('thm').innerHTML = isDark()
+  ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
+  : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>'; }
+function toggleTheme() { const t = isDark() ? 'light' : 'dark'; document.documentElement.dataset.theme = t; try { localStorage.setItem('woahShopTheme', t); } catch (e) {} drawThm(); }
+drawThm();
+
+// ---- data: show the last catalogue straight away, then fetch the fresh one ----
+function load() {
+  try { const c = JSON.parse(localStorage.getItem('woahShopCat') || 'null'); if (c && c.products) { CAT = c; route(); } } catch (e) {}
+  if (!CAT) route();
+  return fetch(API, { method: 'POST', credentials: 'omit', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'shop' }) })
+    .then(r => r.json()).then(res => {
+      if (!res.ok) throw new Error(res.error || 'The shop couldn\'t load');
+      const changed = JSON.stringify(res.data.products) !== JSON.stringify(CAT && CAT.products);
+      CAT = res.data; try { localStorage.setItem('woahShopCat', JSON.stringify(CAT)); } catch (e) {}
+      if (changed) route(true);
+    }).catch(err => { if (!CAT) { document.getElementById('view').innerHTML = `<div class="wrap err"><div class="empty"><b>The shop couldn't load right now.</b><br>${esc(err.message)}<br><br><button class="btn solid" onclick="load()">Try again</button></div></div>`; } });
+}
+
+// ---- helpers about products ----
+function stockOf(p) { return p.variants.reduce((s, v) => s + (v.stock || 0), 0); }
+function cover(p) { return p.photos && p.photos[0]; }
+function priceRange(p, vs) { const ps = (vs || p.variants).map(v => v.price).filter(Boolean); if (!ps.length) return ''; const a = Math.min(...ps), b = Math.max(...ps); return a === b ? rp(a) : rp(a) + ' – ' + rp(b); }
+function artHTML(p) {
+  const words = p.name.split(' '), top = words.length > 2 ? words.slice(0, -1).join(' ') : words[0], bot = words.length > 2 ? words.slice(-1)[0] : words.slice(1).join(' ');
+  return `<div class="art"><svg viewBox="0 0 100 100" fill="none" stroke="#35D6CE" stroke-width="5" stroke-linecap="round"><path d="M5 40c15-15 30-15 45 0s30 15 45 0"/><path d="M5 62c15-15 30-15 45 0s30 15 45 0"/><path d="M5 84c15-15 30-15 45 0s30 15 45 0"/></svg><small>${p.section === 'preorder' ? 'PRE-ORDER' : 'WOAH MERCH'} · PHOTO SOON</small><b>${esc(top)}${bot ? '<br>' + esc(bot) : ''}</b></div>`;
+}
+function swatch(c) { return SWATCH[String(c).toLowerCase()] || '#ccc'; }
+
+function cardHTML(p) {
+  const cur = p.section === 'current', left = stockOf(p), out = cur && left <= 0, low = cur && !out && left <= LOW;
+  const tag = p.section === 'preorder' ? '<span class="tag pre">PRE-ORDER</span>' : out ? '<span class="tag out">SOLD OUT</span>' : low ? `<span class="tag low">ONLY ${left} LEFT</span>` : '<span class="tag">IN STOCK</span>';
+  const c = cover(p), opts = [p.colours.length > 1 ? p.colours.length + ' colours' : '', p.fits.length > 1 ? p.fits.join(' & ') : ''].filter(Boolean).join(' · ');
+  return `<a class="pc fade ${out ? 'soldout' : ''}" href="#/p/${encodeURIComponent(p.key)}">
+    <div class="ph">${c ? `<img src="${esc(c.thumb.replace(/=w\d+$/, '=w700'))}" alt="${esc(p.name)}" loading="lazy">` : artHTML(p)}<div class="tags">${tag}<span></span></div></div>
+    <div class="info"><div class="nm">${esc(p.name)}</div><div class="pr">${priceRange(p)}</div>
+      <div class="sub"><span>${esc(opts || (p.sizes.length ? p.sizes[0] + '–' + p.sizes[p.sizes.length - 1] : ''))}</span>${p.colours.length ? `<span class="dots">${p.colours.slice(0, 5).map(x => `<span class="dot" title="${esc(x)}" style="background:${swatch(x)}"></span>`).join('')}</span>` : ''}</div></div></a>`;
+}
+
+// ---- pages ----
+const WAVES = `<div class="waves" aria-hidden="true"><svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path style="fill:#35D6CE;opacity:.5" d="M0 44c120-30 240-30 360 0s240 30 360 0 240-30 360 0 240 30 360 0v46H0Z"/><path style="fill:#FF7A4D" d="M0 58c120-24 240-24 360 0s240 24 360 0 240-24 360 0 240 24 360 0v32H0Z"/><path style="fill:var(--bg)" d="M0 66c120-20 240-20 360 0s240 20 360 0 240-20 360 0 240 20 360 0v24H0Z"/></svg></div>`;
+function home(focus, keep) {
+  product.last = null;
+  const ps = CAT ? CAT.products : null;
+  const cur = ps ? ps.filter(p => p.section === 'current') : [], pre = ps ? ps.filter(p => p.section === 'preorder') : [];
+  const sk = '<div class="sk"></div>'.repeat(4);
+  cur.sort((a, b) => (stockOf(b) > 0) - (stockOf(a) > 0));
+  document.getElementById('view').innerHTML = `
+    <section class="hero"><div class="wrap">
+      <div><div class="kicker">OFFICIAL WOAH FESTIVAL MERCH</div>
+        <h1>Wear the <em>ocean.</em><br>Back the festival.</h1>
+        <p>Shirts, hoodies and rashies designed by the WOAH team. Grab what's in stock now, or pre-order the new drops before they land.</p>
+        <div class="cta"><a class="btn coral" href="#/current">Shop now</a><a class="btn ghost" href="#/preorder">See pre-orders</a></div></div>
+      <img class="hero-logo" src="img/logo-dark.webp" alt="" width="380" height="172">
+    </div>${WAVES}</section>
+    <main class="wrap">
+      <section class="sec" id="current"><div class="sec-h"><div><div class="kicker">AVAILABLE NOW</div><h2>Shop now</h2><p>In stock and ready to collect.</p></div></div>
+        <div class="grid">${ps ? (cur.length ? cur.map(cardHTML).join('') : '<div class="empty" style="grid-column:1/-1">Nothing in stock right now. Check the pre-orders below.</div>') : sk}</div></section>
+      <section class="sec" id="preorder"><div class="sec-h"><div><div class="kicker">COMING SOON</div><h2>Pre-order</h2><p>Order now and we'll let you know when it arrives. No stock limits: everyone who orders gets one.</p></div></div>
+        <div class="grid">${ps ? (pre.length ? pre.map(cardHTML).join('') : '<div class="empty" style="grid-column:1/-1">No pre-orders open right now.</div>') : sk}</div></section>
+    </main>`;
+  document.title = 'WOAH Shop · WOAH Festival merch';
+  if (focus) { const el = document.getElementById(focus); if (el) setTimeout(() => el.scrollIntoView(), 30); } else if (!keep) window.scrollTo(0, 0);
+}
+
+function product(key) {
+  if (!CAT) { document.getElementById('view').innerHTML = '<div class="wrap"><div class="pp" style="margin-top:60px"><div class="sk" style="aspect-ratio:4/5"></div><div class="sk" style="aspect-ratio:4/3"></div></div></div>'; return; }
+  const p = CAT.products.find(x => x.key === key);
+  if (!p) { document.getElementById('view').innerHTML = '<div class="wrap"><a class="back" href="#/">← Back to the shop</a><div class="empty">This item isn\'t in the shop any more.</div></div>'; return; }
+  const S = STATE[key] = STATE[key] || { img: 0, qty: 1 };
+  const cur = p.section === 'current';
+  // pick sensible defaults: the first colour / fit that still has something available
+  const avail = v => !cur || (v.stock || 0) > 0;
+  if (S.colour == null) S.colour = p.colours.find(c => p.variants.some(v => v.colour === c && avail(v))) || p.colours[0] || '';
+  if (S.fit && !p.variants.some(v => v.fit === S.fit && (!p.colours.length || v.colour === S.colour) && avail(v))) S.fit = null;
+  if (S.fit == null) S.fit = p.fits.find(f => p.variants.some(v => v.fit === f && (!S.colour || v.colour === S.colour) && avail(v))) || p.fits[0] || '';
+  const match = v => (!p.colours.length || v.colour === S.colour) && (!p.fits.length || v.fit === S.fit);
+  const vs = p.variants.filter(match);
+  if (!p.sizes.length) S.size = '';
+  else if (S.size && !vs.some(x => x.size === S.size)) S.size = null;
+  const chosen = vs.find(v => v.size === S.size) || (p.sizes.length ? null : vs[0]);
+  if (chosen && !avail(chosen)) S.size = null;
+  const v = vs.find(x => x.size === S.size) || (p.sizes.length ? null : vs[0]);
+  const photos = p.photos || [];
+  if (S.img >= photos.length) S.img = 0;
+  const ph = photos[S.img];
+  const price = v ? rp(v.price) : priceRange(p, vs);
+  let stockLine = '';
+  if (cur && v) stockLine = v.stock <= 0 ? '<div class="stockline out">Sold out in this option</div>' : v.stock <= LOW ? `<div class="stockline low">Only ${v.stock} left</div>` : '<div class="stockline ok">In stock</div>';
+  if (S.qty > (cur && v ? Math.max(1, v.stock) : 10)) S.qty = cur && v ? Math.max(1, v.stock) : 10;
+  const colourChips = p.colours.length ? `<div class="opt"><div class="lbl">Colour <span>${esc(S.colour)}</span></div><div class="chips">${p.colours.map(c => {
+      const ok = p.variants.some(x => x.colour === c && avail(x));
+      return `<button class="chip ${S.colour === c ? 'on' : ''}" ${ok ? '' : 'disabled'} onclick="pick('${esc(key)}','colour','${esc(c)}')"><span class="sw" style="background:${swatch(c)}"></span>${esc(c)}</button>`; }).join('')}</div></div>` : '';
+  const fitChips = p.fits.length > 1 ? `<div class="opt"><div class="lbl">Fit <span>${esc(S.fit)}</span></div><div class="chips">${p.fits.map(f => {
+      const ok = p.variants.some(x => x.fit === f && (!p.colours.length || x.colour === S.colour) && avail(x));
+      return `<button class="chip ${S.fit === f ? 'on' : ''}" ${ok ? '' : 'disabled'} onclick="pick('${esc(key)}','fit','${esc(f)}')">${esc(f)}</button>`; }).join('')}</div></div>` : '';
+  const sizes = p.sizes.filter(z => vs.some(x => x.size === z));
+  const sizeChips = sizes.length ? `<div class="opt"><div class="lbl">Size <span>${S.size ? esc(S.size) : 'Pick a size'}</span></div><div class="chips">${sizes.map(z => {
+      const x = vs.find(y => y.size === z), ok = x && avail(x), diff = x && vs.some(y => y.price !== x.price);
+      return `<button class="chip ${S.size === z ? 'on' : ''}" ${ok ? '' : 'disabled'} onclick="pick('${esc(key)}','size','${esc(z)}')">${esc(z)}${diff ? `<small>${esc(rp(x.price).replace('Rp ', ''))}</small>` : ''}</button>`; }).join('')}</div></div>` : '';
+  const can = v && avail(v);
+  const anim = product.last !== key; product.last = key;
+  document.getElementById('view').innerHTML = `<div class="wrap ${anim ? 'fade' : ''}">
+    <a class="back" href="#/${p.section === 'preorder' ? 'preorder' : 'current'}">← Back to the shop</a>
+    <div class="pp">
+      <div class="gal"><div class="main">${ph ? `<img src="${esc(ph.url)}" alt="${esc(p.name)}">` : artHTML(p)}
+        ${photos.length > 1 ? `<button class="nav l" aria-label="Previous photo" onclick="img('${esc(key)}',-1)">‹</button><button class="nav r" aria-label="Next photo" onclick="img('${esc(key)}',1)">›</button>` : ''}</div>
+        ${photos.length > 1 ? `<div class="thumbs">${photos.map((x, i) => `<button class="${i === S.img ? 'on' : ''}" onclick="img('${esc(key)}',${i - S.img})" aria-label="Photo ${i + 1}"><img src="${esc(x.thumb)}" alt=""></button>`).join('')}</div>` : ''}</div>
+      <div>
+        <span class="tag ${p.section === 'preorder' ? 'pre' : ''}" style="box-shadow:none;border:1px solid var(--line)">${p.section === 'preorder' ? 'PRE-ORDER' : 'IN STOCK'}</span>
+        <h1>${esc(p.name)}</h1>
+        <div class="price">${price}</div>
+        ${p.desc ? `<p class="desc">${esc(p.desc)}</p>` : ''}
+        ${colourChips}${fitChips}${sizeChips}
+        ${stockLine}
+        <div class="opt"><div class="lbl">Quantity</div><div class="qty"><button aria-label="One less" onclick="qty('${esc(key)}',-1)">−</button><span>${S.qty}</span><button aria-label="One more" onclick="qty('${esc(key)}',1)">+</button></div></div>
+        <div class="buy"><button class="btn solid" ${ORDERING_OPEN && can ? '' : 'disabled'} onclick="bagSoon()">${!ORDERING_OPEN ? 'Ordering opens soon' : p.section === 'preorder' ? 'Pre-order' : 'Add to bag'}${ORDERING_OPEN && v ? ' · ' + rp(v.price * S.qty) : ''}</button></div>
+        ${p.section === 'preorder' ? '<div class="note pre"><b>How pre-orders work:</b> you order and pay now, we order enough for everyone, and we let you know when yours is ready to collect.</div>' : '<div class="note">Collect at Green School Bali. We\'ll tell you where and when after you order.</div>'}
+      </div>
+    </div></div>`;
+  document.title = p.name + ' · WOAH Shop';
+}
+function pick(key, what, val) {
+  const S = STATE[key]; S[what] = val;
+  product(key);
+}
+function img(key, by) { const p = CAT.products.find(x => x.key === key), n = (p.photos || []).length; if (!n) return; STATE[key].img = (STATE[key].img + by + n) % n; product(key); }
+function qty(key, by) { STATE[key].qty = Math.max(1, STATE[key].qty + by); product(key); }
+
+let LAST = '';
+function route(fromData) {
+  const h = location.hash.replace(/^#\/?/, '');
+  const m = h.match(/^p\/(.+)$/);
+  if (m) { const k = decodeURIComponent(m[1]); product(k); if (LAST !== h && !fromData) window.scrollTo(0, 0); }
+  else home(!fromData && (h === 'current' || h === 'preorder') && LAST !== h ? h : null, fromData || LAST === h);
+  LAST = h;
+}
+window.addEventListener('hashchange', () => route());
+load();
+</script>
+</body>
+</html>
