@@ -266,7 +266,7 @@ function load() {
   return fetch(API, { method: 'POST', credentials: 'omit', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'shop' }) })
     .then(r => r.json()).then(res => {
       if (!res.ok) throw new Error(res.error || 'The shop couldn\'t load');
-      const changed = JSON.stringify(res.data.products) !== JSON.stringify(CAT && CAT.products);
+      const changed = JSON.stringify([res.data.products, res.data.settings]) !== JSON.stringify([CAT && CAT.products, CAT && CAT.settings]);
       CAT = res.data; try { localStorage.setItem('woahShopCat', JSON.stringify(CAT)); } catch (e) {}
       if (changed) route(true);
       drawFooter();
