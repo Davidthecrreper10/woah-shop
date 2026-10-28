@@ -295,7 +295,7 @@ function swatch(c) { return SWATCH[String(c).toLowerCase()] || '#ccc'; }
 
 function cardHTML(p) {
   const cur = p.section === 'current', left = stockOf(p), out = cur && left <= 0, low = cur && !out && left <= LOW;
-  const tag = p.section === 'preorder' ? '<span class="tag pre">Pre-order</span>' : out ? '<span class="tag out">Sold out</span>' : low ? `<span class="tag low">Only ${left} left</span>` : '';
+  const tag = p.section === 'preorder' ? (p.preorder === false ? '<span class="tag out">Pre-orders closed</span>' : '<span class="tag pre">Pre-order</span>') : out ? '<span class="tag out">Sold out</span>' : low ? `<span class="tag low">Only ${left} left</span>` : '';
   const c = cover(p);
   const meta = [p.colours.length ? 'Available in ' + listAnd(p.colours) : '', p.fits.length > 1 ? listAnd(p.fits) : ''].filter(Boolean).join(' · ');
   const line2 = [priceRange(p), sizeRange(p)].filter(Boolean).map(x => `<span style="white-space:nowrap">${esc(x)}</span>`).join(' | ');
@@ -365,7 +365,8 @@ function product(key) {
   const sizeChips = sizes.length ? `<div class="opt"><div class="lbl">Size <span>${S.size ? esc(S.size) : 'Pick a size'}</span></div><div class="chips">${sizes.map(z => {
       const x = vs.find(y => y.size === z), ok = x && avail(x), diff = x && vs.some(y => y.price !== x.price);
       return `<button class="chip ${S.size === z ? 'on' : ''}" ${ok ? '' : 'disabled'} onclick="pick('${esc(key)}','size','${esc(z)}')">${esc(z)}${diff ? `<small>${esc(Number(x.price).toLocaleString('en-US'))}</small>` : ''}</button>`; }).join('')}</div></div>` : '';
-  const can = v && avail(v);
+  const closed = p.section === 'preorder' && p.preorder === false;
+  const can = v && avail(v) && !closed;
   const anim = product.last !== key; product.last = key;
   document.getElementById('view').innerHTML = `<div class="wrap ${anim ? 'fade' : ''}">
     <a class="back" href="${bpfx(brandOf(p))}${p.section === 'preorder' ? 'preorder' : 'current'}">← Back to ${brandOf(p) === 'soap' ? 'SOAP merch' : 'the shop'}</a>
@@ -381,7 +382,7 @@ function product(key) {
         ${colourChips}${fitChips}${sizeChips}
         ${stockLine}
         <div class="opt"><div class="lbl">Quantity</div><div class="qty"><button aria-label="One less" onclick="qty('${esc(key)}',-1)">−</button><span>${S.qty}</span><button aria-label="One more" onclick="qty('${esc(key)}',1)">+</button></div></div>
-        <div class="buy"><button class="btn solid" ${canOrder() && can ? '' : 'disabled'} onclick="addToBag('${esc(key)}')">${!canOrder() ? 'Ordering opens soon' : !v ? 'Pick a size' : !can ? 'Sold out' : (p.section === 'preorder' ? 'Pre-order' : 'Add to bag') + ' · ' + rp(v.price * S.qty)}</button></div>
+        <div class="buy"><button class="btn solid" ${canOrder() && can ? '' : 'disabled'} onclick="addToBag('${esc(key)}')">${!canOrder() ? 'Ordering opens soon' : closed ? 'Pre-orders closed' : !v ? 'Pick a size' : !can ? 'Sold out' : (p.section === 'preorder' ? 'Pre-order' : 'Add to bag') + ' · ' + rp(v.price * S.qty)}</button></div>
         ${p.section === 'preorder' ? '<div class="note"><b>How pre-orders work:</b> you order and pay now, we order enough for everyone, and we let you know when yours is ready to collect.</div>' : '<div class="note">Collect at Green School Bali. We\'ll tell you where and when after you order.</div>'}
       </div>
     </div></div>`;
@@ -430,6 +431,7 @@ function bagLinesFor(key, l) { return BAG.filter(x => x.key === key && x.colour 
 function addToBag(key) {
   const S = STATE[key], p = CAT.products.find(x => x.key === key);
   const l = { key, colour: p.colours.length ? S.colour : '', fit: p.fits.length ? S.fit : '', size: p.sizes.length ? S.size : '', qty: S.qty };
+  if (p.section === 'preorder' && p.preorder === false) { toast('Pre-orders for this item are closed.'); return; }
   if (p.sizes.length && !l.size) { toast('Pick a size first.'); return; }
   const i = lineInfo(l);
   if (!i.v) { toast('That option isn\'t available.'); return; }
