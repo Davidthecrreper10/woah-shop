@@ -170,6 +170,13 @@
   .tabs button:last-child { border-right: 0; }
   .tabs button.on { background: #fff; color: var(--navy); box-shadow: inset 0 3px 0 var(--teal); }
   .field { margin-bottom: 12px; }
+  /* WOAH / SOAP merch tabs under the hero */
+  .brands { background: var(--navy-2); }
+  .brands .wrap { display: flex; justify-content: center; gap: 0; }
+  .brands a { flex: 0 1 220px; text-align: center; padding: 14px 10px 13px; font-family: "Oswald", sans-serif; font-size: 16px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.7); text-decoration: none; border-bottom: 3px solid transparent; }
+  .brands a:hover { color: #fff; }
+  .brands a.on { color: #fff; border-bottom-color: var(--aqua); }
+  .brands a small { font-family: "Mulish", sans-serif; font-size: 11px; letter-spacing: .04em; opacity: .75; margin-left: 6px; }
   .field label { display: block; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
   .field input, .field textarea { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; border: 1px solid #CFC9C2; background: #fff; color: var(--ink); border-radius: 0; }
   .field input:focus, .field textarea:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 2px rgba(33,72,107,.15); }
@@ -228,8 +235,8 @@
   <div class="wrap">
     <a class="brand" href="#/" aria-label="WOAH Shop home"><img src="img/logo-white.png" alt="WOAH Festival" width="98" height="46"></a>
     <nav>
-      <a class="hide-s" href="#/current">Shop now</a>
-      <a class="hide-s" href="#/preorder">Pre-order</a>
+      <a class="hide-s" id="navCur" href="#/current">Shop now</a>
+      <a class="hide-s" id="navPre" href="#/preorder">Pre-order</a>
       <a class="hide-s" href="#/orders">My orders</a>
       <a class="bag" href="#/bag" aria-label="Your bag">Bag <b id="bagN">0</b></a>
     </nav>
@@ -252,7 +259,11 @@ const LOW = 3;
 const SWATCH = { white: '#FFFFFF', black: '#111418', green: '#2E8B57', blue: '#1F6FD1', navy: '#0B2545', red: '#D7263D', grey: '#9AA5AB', gray: '#9AA5AB', pink: '#F49AC1', yellow: '#FFC61E', orange: '#FF7A4D', purple: '#7B5CD6', brown: '#7A5230', beige: '#E8DCC2', cream: '#F4EBD9', sand: '#E5D3B3', teal: '#35D6CE', olive: '#708238', khaki: '#BDB07A', charcoal: '#36454F', maroon: '#7A1E2C' };
 const ARROW_L = '<svg viewBox="0 0 70 14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="3" cy="7" r="2" fill="currentColor" stroke="none"/><path d="M3 7h64M48 2l5 5-5 5M56 2l5 5-5 5"/></svg>';
 const ARROW_R = '<svg viewBox="0 0 70 14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="67" cy="7" r="2" fill="currentColor" stroke="none"/><path d="M3 7h64M9 2l5 5-5 5M17 2l5 5-5 5"/></svg>';
-let CAT = null, STATE = {};
+let CAT = null, STATE = {}, BRAND = 'woah';
+// anything with SOAP in its name sits in the SOAP tab, everything else in WOAH
+function brandOf(p) { return /soap/i.test(p && p.name || '') ? 'soap' : 'woah'; }
+function bpfx(b) { return b === 'soap' ? '#/soap/' : '#/'; }
+function setNav(b) { BRAND = b; const c = document.getElementById('navCur'), r = document.getElementById('navPre'); if (c) c.href = bpfx(b) + 'current'; if (r) r.href = bpfx(b) + 'preorder'; }
 
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function rp(n) { return Number(n || 0).toLocaleString('en-US') + ' IDR'; }
@@ -294,9 +305,10 @@ function cardHTML(p) {
 }
 
 // ---- pages ----
-function home(focus, keep) {
-  product.last = null; pageShell.last = null;
-  const ps = CAT ? CAT.products : null;
+function home(brand, focus, keep) {
+  product.last = null; pageShell.last = null; setNav(brand);
+  const all = CAT ? CAT.products : null, ps = all ? all.filter(p => brandOf(p) === brand) : null, pf = bpfx(brand);
+  const cnt = b => all ? all.filter(p => brandOf(p) === b && (p.section === 'current' || p.section === 'preorder')).length : 0;
   const cur = ps ? ps.filter(p => p.section === 'current') : [], pre = ps ? ps.filter(p => p.section === 'preorder') : [];
   const sk = '<div class="sk"></div>'.repeat(4);
   cur.sort((a, b) => (stockOf(b) > 0) - (stockOf(a) > 0));
@@ -305,16 +317,17 @@ function home(focus, keep) {
       <div class="pre">Our merch is designed and sold by students</div>
       <h1>WOAH Shop</h1>
       <p>Wear your love for the ocean. Grab what's in stock now, or pre-order the new designs before they land. Every piece helps make the festival happen.</p>
-      <div class="cta"><a class="btn light" href="#/current">Shop now</a><a class="btn light" href="#/preorder">Pre-order</a></div>
+      <div class="cta"><a class="btn light" href="${pf}current">Shop now</a><a class="btn light" href="${pf}preorder">Pre-order</a></div>
     </div></section>
-    ${pre.length ? `<div class="band"><a class="paper" href="#/preorder"><span>New drops: <u>pre‑order</u> yours now!</span></a></div>` : ''}
+    <nav class="brands" aria-label="Merch"><div class="wrap"><a href="#/" class="${brand === 'woah' ? 'on' : ''}">WOAH Merch${all ? `<small>${cnt('woah')}</small>` : ''}</a><a href="#/soap" class="${brand === 'soap' ? 'on' : ''}">SOAP Merch${all ? `<small>${cnt('soap')}</small>` : ''}</a></div></nav>
+    ${pre.length ? `<div class="band"><a class="paper" href="${pf}preorder"><span>New drops: <u>pre‑order</u> yours now!</span></a></div>` : ''}
     <main class="wrap">
       <section class="sec" id="current">${title('Shop now', 'In stock and ready to collect')}
         <div class="grid">${ps ? (cur.length ? cur.map(cardHTML).join('') : '<div class="empty">Nothing in stock right now. Check the pre-orders below.</div>') : sk}</div></section>
       <section class="sec" id="preorder">${title('Pre-order', 'Coming soon', 'Order now and we\'ll let you know when it arrives. No stock limits: everyone who orders gets one.')}
         <div class="grid">${ps ? (pre.length ? pre.map(cardHTML).join('') : '<div class="empty">No pre-orders open right now.</div>') : sk}</div></section>
     </main>`;
-  document.title = 'WOAH Shop · WOAH Festival merch';
+  document.title = (brand === 'soap' ? 'SOAP Merch' : 'WOAH Shop') + ' · WOAH Festival merch';
   if (focus) { const el = document.getElementById(focus); if (el) setTimeout(() => el.scrollIntoView(), 30); } else if (!keep) window.scrollTo(0, 0);
 }
 
@@ -355,7 +368,7 @@ function product(key) {
   const can = v && avail(v);
   const anim = product.last !== key; product.last = key;
   document.getElementById('view').innerHTML = `<div class="wrap ${anim ? 'fade' : ''}">
-    <a class="back" href="#/${p.section === 'preorder' ? 'preorder' : 'current'}">← Back to the shop</a>
+    <a class="back" href="${bpfx(brandOf(p))}${p.section === 'preorder' ? 'preorder' : 'current'}">← Back to ${brandOf(p) === 'soap' ? 'SOAP merch' : 'the shop'}</a>
     <div class="pp">
       <div class="gal"><div class="main">${ph ? `<img src="${esc(ph.url)}" alt="${esc(p.name)}">` : artHTML(p)}
         ${photos.length > 1 ? `<button class="nav l" aria-label="Previous photo" onclick="img('${esc(key)}',-1)">‹</button><button class="nav r" aria-label="Next photo" onclick="img('${esc(key)}',1)">›</button>` : ''}</div>
@@ -642,8 +655,11 @@ function route(fromData) {
   else if (h === 'checkout') { if (!fromData || !CK.rendered) checkoutPage(); }
   else if (dn) donePage(decodeURIComponent(dn[1]));
   else if (h === 'orders') { if (!fromData) ordersPage(); }
-  else if (m) { const k = decodeURIComponent(m[1]); product(k); if (LAST !== h && !fromData) window.scrollTo(0, 0); }
-  else home(!fromData && (h === 'current' || h === 'preorder') && LAST !== h ? h : null, fromData || LAST === h);
+  else if (m) { const k = decodeURIComponent(m[1]); product(k); if (CAT) setNav(brandOf(CAT.products.find(x => x.key === k))); if (LAST !== h && !fromData) window.scrollTo(0, 0); }
+  else {
+    const soap = h === 'soap' || h.indexOf('soap/') === 0, rest = soap ? h.slice(5) : h;
+    home(soap ? 'soap' : 'woah', !fromData && (rest === 'current' || rest === 'preorder') && LAST !== h ? rest : null, fromData || LAST === h);
+  }
   LAST = h;
 }
 window.addEventListener('hashchange', () => { document.getElementById('toast').classList.remove('on'); route(); });
