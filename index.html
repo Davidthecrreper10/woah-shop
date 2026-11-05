@@ -666,7 +666,7 @@ function route(fromData) {
   const dn = h.match(/^done\/(.+)$/);
   if (h !== 'checkout') CK.rendered = false;
   if (h === 'bag') bagPage();
-  else if (h === 'checkout') { if (!fromData || !CK.rendered) checkoutPage(); }
+  else if (h === 'checkout') { if (!fromData || !CK.rendered) checkoutPage(); else checkoutPage(true); }   // fresh data (e.g. bank details just added): redraw, keeping what they typed
   else if (dn) donePage(decodeURIComponent(dn[1]));
   else if (h === 'orders') { if (!fromData) ordersPage(); }
   else if (m) { const k = decodeURIComponent(m[1]); product(k); if (CAT) setNav(brandOf(CAT.products.find(x => x.key === k))); if (LAST !== h && !fromData) window.scrollTo(0, 0); }
