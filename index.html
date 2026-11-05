@@ -35,7 +35,15 @@
   .bar nav a:hover, .bar nav button:hover { opacity: 1; color: var(--navy); }
   .bar .bag { display: inline-flex; align-items: center; gap: 7px; border: 1px solid rgba(255,255,255,.7) !important; margin-left: 8px; }
   .bar .bag b { font-family: "Mulish", sans-serif; font-size: 11px; font-weight: 700; background: #fff; color: var(--navy); min-width: 19px; height: 19px; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px; }
-  @media (max-width: 640px) { .bar nav .hide-s { display: none; } .brand img { height: 38px; } }
+  @media (max-width: 640px) {
+    .brand img { height: 36px; }
+    .bar .wrap { flex-wrap: wrap; height: auto; row-gap: 2px; padding-top: 8px; padding-bottom: 6px; }
+    .bar nav { width: 100%; justify-content: space-between; }
+    .bar nav a, .bar nav button { font-size: 13px; padding: 7px 6px; letter-spacing: .04em; }
+    .bar .bag { margin-left: 0; padding: 5px 8px !important; }
+    .bar nav a { white-space: nowrap; }
+  }
+  @media (max-width: 380px) { .bar nav a, .bar nav button { font-size: 12px; padding: 7px 3px; letter-spacing: .02em; } }
 
   /* hero: deep navy, big tracked title, paper collage banner */
   .hero { background: var(--navy-2); color: #fff; text-align: center; position: relative; overflow: hidden; }
@@ -262,7 +270,7 @@ const ARROW_R = '<svg viewBox="0 0 70 14" fill="none" stroke="currentColor" stro
 let CAT = null, STATE = {}, BRAND = 'woah';
 // anything with SOAP in its name sits in the SOAP tab, everything else in WOAH
 function brandOf(p) { return /soap/i.test(p && p.name || '') ? 'soap' : 'woah'; }
-function bpfx(b) { return b === 'soap' ? '#/soap/' : '#/'; }
+function bpfx(b) { return '#/'; }   // WOAH and SOAP merch share one page now
 function setNav(b) { BRAND = b; const c = document.getElementById('navCur'), r = document.getElementById('navPre'); if (c) c.href = bpfx(b) + 'current'; if (r) r.href = bpfx(b) + 'preorder'; }
 
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -295,7 +303,7 @@ function swatch(c) { return SWATCH[String(c).toLowerCase()] || '#ccc'; }
 
 function cardHTML(p) {
   const cur = p.section === 'current', left = stockOf(p), out = cur && left <= 0, low = cur && !out && left <= LOW;
-  const tag = p.section === 'preorder' ? (p.preorder === false ? '<span class="tag out">Pre-orders closed</span>' : '<span class="tag pre">Pre-order</span>') : out ? '<span class="tag out">Sold out</span>' : low ? `<span class="tag low">Only ${left} left</span>` : '';
+  const tag = p.section === 'preorder' ? (p.preorder === false ? '<span class="tag out">Pre-orders closed</span>' : '<span class="tag pre">Pre-order</span>') : out ? (p.preorder === true ? '<span class="tag pre">Sold out · pre-order</span>' : '<span class="tag out">Sold out</span>') : low ? `<span class="tag low">Only ${left} left</span>` : '';
   const c = cover(p);
   const meta = [p.colours.length ? 'Available in ' + listAnd(p.colours) : '', p.fits.length > 1 ? listAnd(p.fits) : ''].filter(Boolean).join(' · ');
   const line2 = [priceRange(p), sizeRange(p)].filter(Boolean).map(x => `<span style="white-space:nowrap">${esc(x)}</span>`).join(' | ');
@@ -307,8 +315,7 @@ function cardHTML(p) {
 // ---- pages ----
 function home(brand, focus, keep) {
   product.last = null; pageShell.last = null; setNav(brand);
-  const all = CAT ? CAT.products : null, ps = all ? all.filter(p => brandOf(p) === brand) : null, pf = bpfx(brand);
-  const cnt = b => all ? all.filter(p => brandOf(p) === b && (p.section === 'current' || p.section === 'preorder')).length : 0;
+  const all = CAT ? CAT.products : null, ps = all, pf = bpfx(brand);
   const cur = ps ? ps.filter(p => p.section === 'current') : [], pre = ps ? ps.filter(p => p.section === 'preorder') : [];
   const sk = '<div class="sk"></div>'.repeat(4);
   cur.sort((a, b) => (stockOf(b) > 0) - (stockOf(a) > 0));
@@ -319,7 +326,6 @@ function home(brand, focus, keep) {
       <p>Wear your love for the ocean. Grab what's in stock now, or pre-order the new designs before they land. Every piece helps make the festival happen.</p>
       <div class="cta"><a class="btn light" href="${pf}current">Shop now</a><a class="btn light" href="${pf}preorder">Pre-order</a></div>
     </div></section>
-    <nav class="brands" aria-label="Merch"><div class="wrap"><a href="#/" class="${brand === 'woah' ? 'on' : ''}">WOAH Merch${all ? `<small>${cnt('woah')}</small>` : ''}</a><a href="#/soap" class="${brand === 'soap' ? 'on' : ''}">SOAP Merch${all ? `<small>${cnt('soap')}</small>` : ''}</a></div></nav>
     ${pre.length ? `<div class="band"><a class="paper" href="${pf}preorder"><span>New drops: <u>pre‑order</u> yours now!</span></a></div>` : ''}
     <main class="wrap">
       <section class="sec" id="current">${title('Shop now', 'In stock and ready to collect')}
@@ -327,7 +333,7 @@ function home(brand, focus, keep) {
       <section class="sec" id="preorder">${title('Pre-order', 'Coming soon', 'Order now and we\'ll let you know when it arrives. No stock limits: everyone who orders gets one.')}
         <div class="grid">${ps ? (pre.length ? pre.map(cardHTML).join('') : '<div class="empty">No pre-orders open right now.</div>') : sk}</div></section>
     </main>`;
-  document.title = (brand === 'soap' ? 'SOAP Merch' : 'WOAH Shop') + ' · WOAH Festival merch';
+  document.title = 'WOAH Shop · WOAH Festival merch';
   if (focus) { const el = document.getElementById(focus); if (el) setTimeout(() => el.scrollIntoView(), 30); } else if (!keep) window.scrollTo(0, 0);
 }
 
@@ -337,7 +343,9 @@ function product(key) {
   if (!p) { document.getElementById('view').innerHTML = '<div class="wrap"><a class="back" href="#/">← Back to the shop</a><div class="empty">This item isn\'t in the shop any more.</div></div>'; return; }
   const S = STATE[key] = STATE[key] || { img: 0, qty: 1 };
   const cur = p.section === 'current';
-  const avail = v => !cur || (v.stock || 0) > 0;
+  const preOk = cur && p.preorder === true;   // sold-out options of this item can be pre-ordered
+  const avail = v => !cur || (v.stock || 0) > 0 || preOk;
+  const isPre = v => !cur || (preOk && (v.stock || 0) <= 0);
   if (S.colour == null) S.colour = p.colours.find(c => p.variants.some(v => v.colour === c && avail(v))) || p.colours[0] || '';
   if (S.fit && !p.variants.some(v => v.fit === S.fit && (!p.colours.length || v.colour === S.colour) && avail(v))) S.fit = null;
   if (S.fit == null) S.fit = p.fits.find(f => p.variants.some(v => v.fit === f && (!S.colour || v.colour === S.colour) && avail(v))) || p.fits[0] || '';
@@ -353,8 +361,9 @@ function product(key) {
   const ph = photos[S.img];
   const price = v ? rp(v.price) : priceRange(p, vs);
   let stockLine = '';
-  if (cur && v) stockLine = v.stock <= 0 ? '<div class="stockline out">Sold out in this option</div>' : v.stock <= LOW ? `<div class="stockline low">Only ${v.stock} left</div>` : '<div class="stockline ok">In stock</div>';
-  if (S.qty > (cur && v ? Math.max(1, v.stock) : 10)) S.qty = cur && v ? Math.max(1, v.stock) : 10;
+  if (cur && v) stockLine = v.stock <= 0 ? (preOk ? '<div class="stockline low">Sold out in this option, but you can pre-order it</div>' : '<div class="stockline out">Sold out in this option</div>') : v.stock <= LOW ? `<div class="stockline low">Only ${v.stock} left</div>` : '<div class="stockline ok">In stock</div>';
+  const cap = cur && v && !isPre(v) ? Math.max(1, v.stock) : 10;
+  if (S.qty > cap) S.qty = cap;
   const colourChips = p.colours.length ? `<div class="opt"><div class="lbl">Colour <span>${esc(S.colour)}</span></div><div class="chips">${p.colours.map(c => {
       const ok = p.variants.some(x => x.colour === c && avail(x));
       return `<button class="chip ${S.colour === c ? 'on' : ''}" ${ok ? '' : 'disabled'} onclick="pick('${esc(key)}','colour','${esc(c)}')"><span class="sw" style="background:${swatch(c)}"></span>${esc(c)}</button>`; }).join('')}</div></div>` : '';
@@ -363,27 +372,27 @@ function product(key) {
       return `<button class="chip ${S.fit === f ? 'on' : ''}" ${ok ? '' : 'disabled'} onclick="pick('${esc(key)}','fit','${esc(f)}')">${esc(f)}</button>`; }).join('')}</div></div>` : '';
   const sizes = p.sizes.filter(z => vs.some(x => x.size === z));
   const sizeChips = sizes.length ? `<div class="opt"><div class="lbl">Size <span>${S.size ? esc(S.size) : 'Pick a size'}</span></div><div class="chips">${sizes.map(z => {
-      const x = vs.find(y => y.size === z), ok = x && avail(x), diff = x && vs.some(y => y.price !== x.price);
-      return `<button class="chip ${S.size === z ? 'on' : ''}" ${ok ? '' : 'disabled'} onclick="pick('${esc(key)}','size','${esc(z)}')">${esc(z)}${diff ? `<small>${esc(Number(x.price).toLocaleString('en-US'))}</small>` : ''}</button>`; }).join('')}</div></div>` : '';
+      const x = vs.find(y => y.size === z), ok = x && avail(x), diff = x && vs.some(y => y.price !== x.price), pre = cur && x && ok && isPre(x);
+      return `<button class="chip ${S.size === z ? 'on' : ''}" ${ok ? '' : 'disabled'} ${pre ? 'title="Sold out: pre-order"' : ''} onclick="pick('${esc(key)}','size','${esc(z)}')">${esc(z)}${pre ? '<small>pre-order</small>' : diff ? `<small>${esc(Number(x.price).toLocaleString('en-US'))}</small>` : ''}</button>`; }).join('')}</div></div>` : '';
   const closed = p.section === 'preorder' && p.preorder === false;
   const can = v && avail(v) && !closed;
   const anim = product.last !== key; product.last = key;
   document.getElementById('view').innerHTML = `<div class="wrap ${anim ? 'fade' : ''}">
-    <a class="back" href="${bpfx(brandOf(p))}${p.section === 'preorder' ? 'preorder' : 'current'}">← Back to ${brandOf(p) === 'soap' ? 'SOAP merch' : 'the shop'}</a>
+    <a class="back" href="${bpfx(brandOf(p))}${p.section === 'preorder' ? 'preorder' : 'current'}">← Back to the shop</a>
     <div class="pp">
       <div class="gal"><div class="main">${ph ? `<img src="${esc(ph.url)}" alt="${esc(p.name)}">` : artHTML(p)}
         ${photos.length > 1 ? `<button class="nav l" aria-label="Previous photo" onclick="img('${esc(key)}',-1)">‹</button><button class="nav r" aria-label="Next photo" onclick="img('${esc(key)}',1)">›</button>` : ''}</div>
         ${photos.length > 1 ? `<div class="thumbs">${photos.map((x, i) => `<button class="${i === S.img ? 'on' : ''}" onclick="img('${esc(key)}',${i - S.img})" aria-label="Photo ${i + 1}"><img src="${esc(x.thumb)}" alt=""></button>`).join('')}</div>` : ''}</div>
       <div>
-        <div class="kick">${p.section === 'preorder' ? 'Pre-order' : 'In stock'}</div>
+        <div class="kick">${p.section === 'preorder' || (v && isPre(v)) ? 'Pre-order' : 'In stock'}</div>
         <h1>${esc(p.name).replace(/-/g, '\u2011')}</h1>
         <div class="price">${price}</div>
         ${p.desc ? `<p class="desc">${esc(p.desc)}</p>` : ''}
         ${colourChips}${fitChips}${sizeChips}
         ${stockLine}
         <div class="opt"><div class="lbl">Quantity</div><div class="qty"><button aria-label="One less" onclick="qty('${esc(key)}',-1)">−</button><span>${S.qty}</span><button aria-label="One more" onclick="qty('${esc(key)}',1)">+</button></div></div>
-        <div class="buy"><button class="btn solid" ${canOrder() && can ? '' : 'disabled'} onclick="addToBag('${esc(key)}')">${!canOrder() ? 'Ordering opens soon' : closed ? 'Pre-orders closed' : !v ? 'Pick a size' : !can ? 'Sold out' : (p.section === 'preorder' ? 'Pre-order' : 'Add to bag') + ' · ' + rp(v.price * S.qty)}</button></div>
-        ${p.section === 'preorder' ? '<div class="note"><b>How pre-orders work:</b> you order and pay now, we order enough for everyone, and we let you know when yours is ready to collect.</div>' : '<div class="note">Collect at Green School Bali. We\'ll tell you where and when after you order.</div>'}
+        <div class="buy"><button class="btn solid" ${canOrder() && can ? '' : 'disabled'} onclick="addToBag('${esc(key)}')">${!canOrder() ? 'Ordering opens soon' : closed ? 'Pre-orders closed' : !v ? 'Pick a size' : !can ? 'Sold out' : (isPre(v) ? 'Pre-order' : 'Add to bag') + ' · ' + rp(v.price * S.qty)}</button></div>
+        ${p.section === 'preorder' || (v && isPre(v)) ? '<div class="note"><b>How pre-orders work:</b> you order and pay now, we order enough for everyone, and we let you know when yours is ready to collect.</div>' : '<div class="note">Collect at Green School Bali. We\'ll tell you where and when after you order.</div>'}
       </div>
     </div></div>`;
   document.title = p.name + ' · WOAH Shop';
@@ -422,15 +431,18 @@ function optText(l) { return [l.colour, l.fit, l.size].filter(Boolean).join(' ·
 function lineInfo(l) {
   const p = CAT && CAT.products.find(x => x.key === l.key);
   const v = p && p.variants.find(x => (x.colour || '') === (l.colour || '') && (x.fit || '') === (l.fit || '') && (x.size || '') === (l.size || ''));
-  const cur = p && p.section === 'current';
+  const pre = !!(p && (p.section === 'preorder' || (l.pre && p.preorder === true && v && (v.stock || 0) <= 0)));
+  const cur = p && p.section === 'current' && !pre;
   const left = cur && v ? (v.stock || 0) : 99;
-  return { p, v, cur, left, ok: !!(p && v && v.price > 0 && (!cur || left >= l.qty)) };
+  return { p, v, cur, pre, left, ok: !!(p && v && v.price > 0 && (!cur || left >= l.qty)) };
 }
 function bagLinesFor(key, l) { return BAG.filter(x => x.key === key && x.colour === l.colour && x.fit === l.fit && x.size === l.size).reduce((s, x) => s + x.qty, 0); }
 
 function addToBag(key) {
   const S = STATE[key], p = CAT.products.find(x => x.key === key);
   const l = { key, colour: p.colours.length ? S.colour : '', fit: p.fits.length ? S.fit : '', size: p.sizes.length ? S.size : '', qty: S.qty };
+  const vv = p.variants.find(x => (x.colour || '') === l.colour && (x.fit || '') === l.fit && (x.size || '') === l.size);
+  if (p.section === 'current' && p.preorder === true && vv && (vv.stock || 0) <= 0) l.pre = true;   // sold out: pre-order
   if (p.section === 'preorder' && p.preorder === false) { toast('Pre-orders for this item are closed.'); return; }
   if (p.sizes.length && !l.size) { toast('Pick a size first.'); return; }
   const i = lineInfo(l);
@@ -438,7 +450,7 @@ function addToBag(key) {
   const have = bagLinesFor(key, l);
   if (i.cur && have + l.qty > i.left) { toast(i.left - have > 0 ? `Only ${i.left - have} more available.` : 'You already have all that\'s left in your bag.'); return; }
   const ex = BAG.find(x => x.key === key && x.colour === l.colour && x.fit === l.fit && x.size === l.size);
-  if (ex) ex.qty = Math.min(10, ex.qty + l.qty); else BAG.push(l);
+  if (ex) { ex.qty = Math.min(10, ex.qty + l.qty); if (l.pre) ex.pre = true; } else BAG.push(l);
   saveBag();
   const el = document.getElementById('toast');
   el.innerHTML = `Added to your bag · <a href="#/bag" style="color:var(--pale)">View bag</a>`; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 3800);
@@ -454,7 +466,7 @@ function bagLineHTML(l, i, edit) {
   return `<div class="bl">
     <a class="bl-ph" href="#/p/${encodeURIComponent(l.key)}">${thumbOf(p)}</a>
     <div class="bl-info"><div class="bl-nm">${esc(p ? p.name : l.key)}</div><div class="bl-op">${esc(optText(l))}</div>
-      <div class="bl-ty">${p && p.section === 'preorder' ? 'Pre-order' : 'In stock'}${warn ? ` · <b class="bad">${esc(warn)}</b>` : ''}</div>
+      <div class="bl-ty">${inf.pre ? 'Pre-order' : 'In stock'}${warn ? ` · <b class="bad">${esc(warn)}</b>` : ''}</div>
       ${edit ? `<div class="bl-act"><div class="qty sm"><button aria-label="One less" onclick="bagQty(${i},-1)">−</button><span>${l.qty}</span><button aria-label="One more" onclick="bagQty(${i},1)">+</button></div><button class="lnk" onclick="bagDel(${i})">Remove</button></div>` : `<div class="bl-op">Qty ${l.qty}</div>`}</div>
     <div class="bl-pr">${inf.v ? rp(inf.v.price * l.qty) : ''}</div></div>`;
 }
@@ -534,7 +546,7 @@ function checkoutPage(keep) {
       </div>
       <aside class="box sum"><h3 class="h3" style="margin-top:0">Your order</h3>${BAG.map((l, i) => bagLineHTML(l, i, false)).join('')}
         <div class="tot"><span>Total</span><b>${rp(bagTotal())}</b></div>
-        ${BAG.some(l => lineInfo(l).p.section === 'preorder') ? '<div class="hint">Pre-order items are ordered for you and we\'ll tell you when they\'re ready to collect.</div>' : ''}
+        ${BAG.some(l => lineInfo(l).pre) ? '<div class="hint">Pre-order items are ordered for you and we\'ll tell you when they\'re ready to collect.</div>' : ''}
         ${showForm ? `<button class="btn solid wide" id="placeBtn" onclick="placeOrder()">Place order · ${rp(bagTotal())}</button><div class="fmsg" id="ckMsg"></div>` : '<div class="hint">Log in or pick Guest to continue.</div>'}
         <a class="lnk" href="#/bag">← Edit bag</a></aside>
     </div>`);
