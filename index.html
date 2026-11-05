@@ -110,10 +110,9 @@
   @media (max-width: 860px) { .pp { grid-template-columns: minmax(0, 1fr); gap: 22px; } }
   .gal { position: sticky; top: 86px; }
   @media (max-width: 860px) { .gal { position: static; } }
-  .gal .main { overflow: hidden; background: var(--soft); position: relative; display: flex; align-items: center; justify-content: center; min-height: 240px; }
-  .gal .main.noimg { aspect-ratio: 4 / 5; }
-  .gal .main img { display: block; width: 100%; height: auto; max-height: 78vh; object-fit: contain; }   /* landscape photos show whole */
-  @media (max-width: 860px) { .gal .main img { max-height: 70vh; } }
+  .gal .main { aspect-ratio: 4 / 5; overflow: hidden; background: var(--soft); position: relative; touch-action: pan-y; }   /* same frame for every photo, so the page never jumps */
+  .gal .main img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }   /* whole photo, portrait or landscape */
+  .gal .main { width: 100%; max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px); min-height: 220px; }   /* phone turned sideways: photo still fits on screen */
   .gal .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 0; background: rgba(255,255,255,.9); color: var(--navy); font-size: 20px; }
   .gal .nav.l { left: 10px; } .gal .nav.r { right: 10px; }
   .thumbs { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px; max-width: 100%; -webkit-overflow-scrolling: touch; }
@@ -248,6 +247,27 @@
   @keyframes fade { from { opacity: 0; transform: translateY(8px); } }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .fade { animation: none; } }
   html, body { max-width: 100%; overflow-x: clip; }
+  body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+  body > #view { flex: 1 0 auto; }
+  /* animations */
+  .gal .main img.in-r { animation: inR .38s cubic-bezier(.2,.7,.2,1) both; }
+  .gal .main img.in-l { animation: inL .38s cubic-bezier(.2,.7,.2,1) both; }
+  .gal .main img.in-f { animation: inF .35s ease both; }
+  @keyframes inR { from { opacity: 0; transform: translateX(7%); } }
+  @keyframes inL { from { opacity: 0; transform: translateX(-7%); } }
+  @keyframes inF { from { opacity: 0; transform: scale(1.02); } }
+  .grid.rise > * { animation: rise .55s cubic-bezier(.2,.7,.2,1) both; }
+  .grid.rise > *:nth-child(2) { animation-delay: .06s; } .grid.rise > *:nth-child(3) { animation-delay: .12s; } .grid.rise > *:nth-child(4) { animation-delay: .18s; }
+  .grid.rise > *:nth-child(5) { animation-delay: .24s; } .grid.rise > *:nth-child(n+6) { animation-delay: .3s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+  .btn, .chip, .rc, .thumbs button, .qty button, .bar nav a, .gal .nav { transition: background-color .2s, border-color .2s, color .2s, opacity .2s, transform .15s; }
+  .btn:active:not([disabled]), .chip:active:not([disabled]), .qty button:active, .gal .nav:active { transform: scale(.96); }
+  .gal .nav:active { transform: translateY(-50%) scale(.92); }
+  .thumbs button:hover { border-color: var(--pale); } .thumbs button.on { border-color: var(--navy); }
+  #bagN.bump { animation: bump .45s ease; }
+  @keyframes bump { 40% { transform: scale(1.45); } }
+  .toast.on { transition: transform .3s cubic-bezier(.2,.8,.2,1.2), opacity .3s, visibility .3s; }
+  @media (prefers-reduced-motion: reduce) { .gal .main img, .grid.rise > *, #bagN.bump { animation: none !important; } .btn, .chip { transition: none; } }
 </style>
 </head>
 <body>
@@ -341,9 +361,9 @@ function home(brand, focus, keep) {
     ${pre.length ? `<div class="band"><a class="paper" href="${pf}preorder"><span>New drops: <u>pre‑order</u> yours now!</span></a></div>` : ''}
     <main class="wrap">
       <section class="sec" id="current">${title('Shop now', 'In stock and ready to collect')}
-        <div class="grid">${ps ? (cur.length ? cur.map(cardHTML).join('') : '<div class="empty">Nothing in stock right now. Check the pre-orders below.</div>') : sk}</div></section>
+        <div class="grid ${keep ? '' : 'rise'}">${ps ? (cur.length ? cur.map(cardHTML).join('') : '<div class="empty">Nothing in stock right now. Check the pre-orders below.</div>') : sk}</div></section>
       <section class="sec" id="preorder">${title('Pre-order', 'Coming soon', 'Order now and we\'ll let you know when it arrives. No stock limits: everyone who orders gets one.')}
-        <div class="grid">${ps ? (pre.length ? pre.map(cardHTML).join('') : '<div class="empty">No pre-orders open right now.</div>') : sk}</div></section>
+        <div class="grid ${keep ? '' : 'rise'}">${ps ? (pre.length ? pre.map(cardHTML).join('') : '<div class="empty">No pre-orders open right now.</div>') : sk}</div></section>
     </main>`;
   document.title = 'WOAH Shop · WOAH Festival merch';
   if (focus) { const el = document.getElementById(focus); if (el) setTimeout(() => el.scrollIntoView(), 30); } else if (!keep) window.scrollTo(0, 0);
@@ -392,7 +412,7 @@ function product(key) {
   document.getElementById('view').innerHTML = `<div class="wrap ${anim ? 'fade' : ''}">
     <a class="back" href="${bpfx(brandOf(p))}${p.section === 'preorder' ? 'preorder' : 'current'}">← Back to the shop</a>
     <div class="pp">
-      <div class="gal"><div class="main ${ph ? '' : 'noimg'}">${ph ? `<img src="${esc(ph.url)}" alt="${esc(p.name)}">` : artHTML(p)}
+      <div class="gal"><div class="main ${ph ? '' : 'noimg'}" ${photos.length > 1 ? `ontouchstart="tStart(event)" ontouchend="tEnd(event,'${esc(key)}')"` : ''}>${ph ? `<img class="${product.dir ? (product.dir > 0 ? 'in-r' : 'in-l') : anim ? 'in-f' : ''}" src="${esc(ph.url)}" alt="${esc(p.name)}">` : artHTML(p)}
         ${photos.length > 1 ? `<button class="nav l" aria-label="Previous photo" onclick="img('${esc(key)}',-1)">‹</button><button class="nav r" aria-label="Next photo" onclick="img('${esc(key)}',1)">›</button>` : ''}</div>
         ${photos.length > 1 ? `<div class="thumbs">${photos.map((x, i) => `<button class="${i === S.img ? 'on' : ''}" onclick="img('${esc(key)}',${i - S.img})" aria-label="Photo ${i + 1}"><img src="${esc(x.thumb)}" alt=""></button>`).join('')}</div>` : ''}</div>
       <div>
@@ -408,9 +428,15 @@ function product(key) {
       </div>
     </div></div>`;
   document.title = p.name + ' · WOAH Shop';
+  product.dir = 0; preload(p);
 }
 function pick(key, what, val) { STATE[key][what] = val; product(key); }
-function img(key, by) { const p = CAT.products.find(x => x.key === key), n = (p.photos || []).length; if (!n) return; STATE[key].img = (STATE[key].img + by + n) % n; product(key); }
+function img(key, by) { const p = CAT.products.find(x => x.key === key), n = (p.photos || []).length; if (!n || !by) return; STATE[key].img = (STATE[key].img + by + n) % n; product.dir = by > 0 ? 1 : -1; product(key); }
+let TOUCH = null;
+function tStart(e) { const t = e.touches[0]; TOUCH = { x: t.clientX, y: t.clientY }; }
+function tEnd(e, key) { if (!TOUCH) return; const t = e.changedTouches[0], dx = t.clientX - TOUCH.x, dy = t.clientY - TOUCH.y; TOUCH = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) img(key, dx < 0 ? 1 : -1); }
+function preload(p) { if (preload.done[p.key]) return; preload.done[p.key] = 1; (p.photos || []).forEach(x => { const i = new Image(); i.src = x.url; }); }
+preload.done = {};
 function qty(key, by) { STATE[key].qty = Math.max(1, STATE[key].qty + by); product(key); }
 // typed quantity: redraw after the browser has finished the change/blur, so the page isn't swapped mid-event
 function setQty(key, val) { STATE[key].qty = Math.max(1, Math.min(999, Math.floor(Number(val) || 1))); setTimeout(() => product(key), 0); }
@@ -429,7 +455,7 @@ const ROLES = ['Student', 'Parent', 'Staff', 'Other'];
 let BAG = [], TOKEN = '', ACC = null, CK = { mode: 'guest', pay: '', collect: '', role: 'Student' }, BUSY = false;
 try { BAG = JSON.parse(localStorage.getItem('woahBag') || '[]'); TOKEN = localStorage.getItem('woahShopToken') || ''; ACC = JSON.parse(localStorage.getItem('woahShopAcc') || 'null'); } catch (e) {}
 function saveBag() { try { localStorage.setItem('woahBag', JSON.stringify(BAG)); } catch (e) {} drawBagCount(); }
-function drawBagCount() { const n = BAG.reduce((s, l) => s + l.qty, 0), el = document.getElementById('bagN'); if (el) el.textContent = n; }
+function drawBagCount() { const n = BAG.reduce((s, l) => s + l.qty, 0), el = document.getElementById('bagN'); if (!el) return; const was = el.textContent; el.textContent = n; if (was !== String(n) && drawBagCount.ready) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } drawBagCount.ready = true; }
 function canOrder() { return !!(CAT && CAT.settings && CAT.settings.open); }
 function phoneText() { const n = settings().whatsapp; return n ? '+' + n.replace(/^(\d{2})(\d{3})(\d{4})(\d+)$/, '$1 $2 $3 $4') : ''; }
 function contactLine(order) {
