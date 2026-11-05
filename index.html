@@ -680,6 +680,19 @@ window.addEventListener('hashchange', () => { document.getElementById('toast').c
 drawBagCount();
 drawFooter();
 load();
+
+// ---- anonymous visitor count: a random ID per browser + how many pages were seen (no names, no IP) ----
+let VID = ''; try { VID = localStorage.getItem('woahVid') || ''; if (!VID) { VID = Math.random().toString(36).slice(2, 10); localStorage.setItem('woahVid', VID); } } catch (e) { VID = Math.random().toString(36).slice(2, 10); }
+let VIEWS = 0;
+function sendHit(n) {
+  try {
+    const body = JSON.stringify({ action: 'shopHit', vid: VID, views: n });
+    if (!(navigator.sendBeacon && navigator.sendBeacon(API, new Blob([body], { type: 'text/plain;charset=utf-8' })))) fetch(API, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body });
+  } catch (e) {}
+}
+sendHit(1);
+window.addEventListener('hashchange', () => { VIEWS++; });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && VIEWS) { sendHit(VIEWS); VIEWS = 0; } });
 </script>
 </body>
 </html>
