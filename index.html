@@ -436,7 +436,7 @@ function product(key) {
         ${stockLine}
         <div class="opt"><div class="lbl">Quantity</div><div class="qty"><button aria-label="One less" onclick="qty('${esc(key)}',-1)">−</button><input type="number" inputmode="numeric" min="1" max="999" aria-label="Quantity" value="${S.qty}" onchange="setQty('${esc(key)}',this.value)"><button aria-label="One more" onclick="qty('${esc(key)}',1)">+</button></div></div>
         <div class="buy"><button class="btn solid" ${canOrder() && can ? '' : 'disabled'} onclick="addToBag('${esc(key)}')">${!canOrder() ? 'Ordering opens soon' : closed ? 'Pre-orders closed' : !v ? 'Pick a size' : !can ? 'Sold out' : (isPre(v) ? 'Pre-order' : 'Add to cart') + ' · ' + rp(v.price * S.qty)}</button></div>
-        ${p.section === 'preorder' || (v && isPre(v)) ? '<div class="note"><b>How pre-orders work:</b> you order and pay now, we order enough for everyone, and we let you know when yours is ready to collect.</div>' : '<div class="note">Collect at Green School Bali. We\'ll tell you where and when after you order.</div>'}
+        ${p.section === 'preorder' || (v && isPre(v)) ? '<div class="note"><b>How pre-orders work:</b> you order now and pay now or when you pick it up. We order enough for everyone and let you know when yours is ready to collect.</div>' : '<div class="note">Collect at Green School Bali. We\'ll tell you where and when after you order.</div>'}
       </div>
     </div></div>`;
   document.title = p.name + ' · WOAH Shop';
