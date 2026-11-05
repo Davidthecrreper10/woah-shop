@@ -40,10 +40,13 @@
     .bar .wrap { flex-wrap: wrap; height: auto; row-gap: 2px; padding-top: 8px; padding-bottom: 6px; }
     .bar nav { width: 100%; justify-content: space-between; }
     .bar nav a, .bar nav button { font-size: 13px; padding: 7px 6px; letter-spacing: .04em; }
-    .bar .bag { margin-left: 0; padding: 5px 8px !important; }
+    .bar .wrap { position: relative; }
+    .bar .bag { position: absolute; right: 16px; top: 10px; margin-left: 0; padding: 5px 8px !important; }   /* cart sits next to the logo, so the links fit on one row */
+    .bar nav { justify-content: flex-start; gap: 0 4px; }
     .bar nav a { white-space: nowrap; }
   }
-  @media (max-width: 380px) { .bar nav a, .bar nav button { font-size: 12px; padding: 7px 3px; letter-spacing: .02em; } }
+  @media (max-width: 440px) { .bar nav a, .bar nav button { font-size: 12px; padding: 7px 3px; letter-spacing: .02em; } .bar .bag { padding: 4px 6px !important; } }
+  @media (max-width: 360px) { .bar nav a, .bar nav button { font-size: 11px; padding: 7px 2px; letter-spacing: 0; } }
 
   /* hero: deep navy, big tracked title, paper collage banner */
   .hero { background: var(--navy-2); color: #fff; text-align: center; position: relative; overflow: hidden; }
@@ -78,6 +81,8 @@
   .grid { display: grid; gap: 28px 22px; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
   @media (max-width: 560px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 20px 12px; } }
   .empty { border: 1px dashed var(--line); padding: 30px; text-align: center; color: var(--muted); grid-column: 1 / -1; }
+  .empty.soon { border: 0; background: var(--soft); padding: 38px 20px; font-size: 15px; }
+  .empty.soon b { display: block; font-family: "Oswald", sans-serif; font-weight: 500; font-size: 24px; letter-spacing: .14em; text-transform: uppercase; color: var(--navy); margin-bottom: 4px; }
 
   /* product cards: photo, name, then quiet details (like the website) */
   .pc { text-decoration: none; display: flex; flex-direction: column; text-align: center; }
@@ -277,6 +282,7 @@
     <nav>
       <a class="hide-s" id="navCur" href="#/current">Shop now</a>
       <a class="hide-s" id="navPre" href="#/preorder">Pre-order</a>
+      <a class="hide-s" href="#/old">Old merch</a>
       <a class="hide-s" href="#/orders">My orders</a>
       <a class="bag" href="#/cart" aria-label="Your cart">Cart <b id="bagN">0</b></a>
     </nav>
@@ -303,6 +309,8 @@ let CAT = null, STATE = {}, BRAND = 'woah';
 // anything with SOAP in its name sits in the SOAP tab, everything else in WOAH
 function brandOf(p) { return /soap/i.test(p && p.name || '') ? 'soap' : 'woah'; }
 function bpfx(b) { return '#/'; }   // WOAH and SOAP merch share one page now
+function colOff(p, c) { c = String(c || '').trim().toLowerCase(); return !!c && (p && p.preOff || []).some(x => String(x).trim().toLowerCase() === c); }   // no pre-orders for this colour
+function fromStock(p) { return !!p && (p.section === 'current' || p.section === 'old'); }   // Current merch and Old merch sell from stock
 function setNav(b) { BRAND = b; const c = document.getElementById('navCur'), r = document.getElementById('navPre'); if (c) c.href = bpfx(b) + 'current'; if (r) r.href = bpfx(b) + 'preorder'; }
 
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -334,7 +342,7 @@ function artHTML(p) { return `<div class="art"><div class="scrap"><b>${esc(p.nam
 function swatch(c) { return SWATCH[String(c).toLowerCase()] || '#ccc'; }
 
 function cardHTML(p) {
-  const cur = p.section === 'current', left = stockOf(p), out = cur && left <= 0, low = cur && !out && left <= LOW;
+  const cur = fromStock(p), left = stockOf(p), out = cur && left <= 0, low = cur && !out && left <= LOW;
   const tag = p.section === 'preorder' ? (p.preorder === false ? '<span class="tag out">Pre-orders closed</span>' : '<span class="tag pre">Pre-order</span>') : out ? (p.preorder === true ? '<span class="tag pre">Sold out · pre-order</span>' : '<span class="tag out">Sold out</span>') : low ? `<span class="tag low">Only ${left} left</span>` : '';
   const c = cover(p);
   const meta = [p.colours.length ? 'Available in ' + listAnd(p.colours) : '', p.fits.length > 1 ? listAnd(p.fits) : ''].filter(Boolean).join(' · ');
@@ -348,7 +356,9 @@ function cardHTML(p) {
 function home(brand, focus, keep) {
   product.last = null; pageShell.last = null; setNav(brand);
   const all = CAT ? CAT.products : null, ps = all, pf = bpfx(brand);
-  const cur = ps ? ps.filter(p => p.section === 'current') : [], pre = ps ? ps.filter(p => p.section === 'preorder') : [];
+  const cur = ps ? ps.filter(p => p.section === 'current') : [], pre = ps ? ps.filter(p => p.section === 'preorder') : [], old = ps ? ps.filter(p => p.section === 'old') : [];
+  const soon = t => `<div class="empty soon"><b>Stay tuned!</b><br>${t}</div>`;
+  old.sort((a, b) => (stockOf(b) > 0) - (stockOf(a) > 0));
   const sk = '<div class="sk"></div>'.repeat(4);
   cur.sort((a, b) => (stockOf(b) > 0) - (stockOf(a) > 0));
   document.getElementById('view').innerHTML = `
@@ -361,9 +371,11 @@ function home(brand, focus, keep) {
     ${pre.length ? `<div class="band"><a class="paper" href="${pf}preorder"><span>New drops: <u>pre‑order</u> yours now!</span></a></div>` : ''}
     <main class="wrap">
       <section class="sec" id="current">${title('Shop now', 'In stock and ready to collect')}
-        <div class="grid ${keep ? '' : 'rise'}">${ps ? (cur.length ? cur.map(cardHTML).join('') : '<div class="empty">Nothing in stock right now. Check the pre-orders below.</div>') : sk}</div></section>
+        <div class="grid ${keep ? '' : 'rise'}">${ps ? (cur.length ? cur.map(cardHTML).join('') : soon('New merch is coming soon.')) : sk}</div></section>
       <section class="sec" id="preorder">${title('Pre-order', 'Coming soon', 'Order now and we\'ll let you know when it arrives. No stock limits: everyone who orders gets one.')}
-        <div class="grid ${keep ? '' : 'rise'}">${ps ? (pre.length ? pre.map(cardHTML).join('') : '<div class="empty">No pre-orders open right now.</div>') : sk}</div></section>
+        <div class="grid ${keep ? '' : 'rise'}">${ps ? (pre.length ? pre.map(cardHTML).join('') : soon('New designs are coming soon.')) : sk}</div></section>
+      <section class="sec" id="old">${title('Old merch', 'Earlier designs, while stock lasts')}
+        <div class="grid ${keep ? '' : 'rise'}">${ps ? (old.length ? old.map(cardHTML).join('') : soon('Old favourites are coming back soon.')) : sk}</div></section>
     </main>`;
   document.title = 'WOAH Shop · WOAH Festival merch';
   if (focus) { const el = document.getElementById(focus); if (el) setTimeout(() => el.scrollIntoView(), 30); } else if (!keep) window.scrollTo(0, 0);
@@ -374,9 +386,9 @@ function product(key) {
   const p = CAT.products.find(x => x.key === key);
   if (!p) { document.getElementById('view').innerHTML = '<div class="wrap"><a class="back" href="#/">← Back to the shop</a><div class="empty">This item isn\'t in the shop any more.</div></div>'; return; }
   const S = STATE[key] = STATE[key] || { img: 0, qty: 1 };
-  const cur = p.section === 'current';
+  const cur = fromStock(p);
   const preOk = cur && p.preorder === true;   // sold-out options of this item can be pre-ordered
-  const avail = v => !cur || (v.stock || 0) > 0 || preOk;
+  const avail = v => cur ? (v.stock || 0) > 0 || (preOk && !colOff(p, v.colour)) : !colOff(p, v.colour);
   const isPre = v => !cur || (preOk && (v.stock || 0) <= 0);
   if (S.colour == null) S.colour = p.colours.find(c => p.variants.some(v => v.colour === c && avail(v))) || p.colours[0] || '';
   if (S.fit && !p.variants.some(v => v.fit === S.fit && (!p.colours.length || v.colour === S.colour) && avail(v))) S.fit = null;
@@ -410,13 +422,13 @@ function product(key) {
   const can = v && avail(v) && !closed;
   const anim = product.last !== key; product.last = key;
   document.getElementById('view').innerHTML = `<div class="wrap ${anim ? 'fade' : ''}">
-    <a class="back" href="${bpfx(brandOf(p))}${p.section === 'preorder' ? 'preorder' : 'current'}">← Back to the shop</a>
+    <a class="back" href="${bpfx(brandOf(p))}${p.section === 'preorder' ? 'preorder' : p.section === 'old' ? 'old' : 'current'}">← Back to the shop</a>
     <div class="pp">
       <div class="gal"><div class="main ${ph ? '' : 'noimg'}" ${photos.length > 1 ? `ontouchstart="tStart(event)" ontouchend="tEnd(event,'${esc(key)}')"` : ''}>${ph ? `<img class="${product.dir ? (product.dir > 0 ? 'in-r' : 'in-l') : anim ? 'in-f' : ''}" src="${esc(ph.url)}" alt="${esc(p.name)}">` : artHTML(p)}
         ${photos.length > 1 ? `<button class="nav l" aria-label="Previous photo" onclick="img('${esc(key)}',-1)">‹</button><button class="nav r" aria-label="Next photo" onclick="img('${esc(key)}',1)">›</button>` : ''}</div>
         ${photos.length > 1 ? `<div class="thumbs">${photos.map((x, i) => `<button class="${i === S.img ? 'on' : ''}" onclick="img('${esc(key)}',${i - S.img})" aria-label="Photo ${i + 1}"><img src="${esc(x.thumb)}" alt=""></button>`).join('')}</div>` : ''}</div>
       <div>
-        <div class="kick">${p.section === 'preorder' || (v && isPre(v)) ? 'Pre-order' : 'In stock'}</div>
+        <div class="kick">${p.section === 'preorder' || (v && isPre(v)) ? 'Pre-order' : p.section === 'old' ? 'Old merch · in stock' : 'In stock'}</div>
         <h1>${esc(p.name).replace(/-/g, '\u2011')}</h1>
         <div class="price">${price}</div>
         ${p.desc ? `<p class="desc">${esc(p.desc)}</p>` : ''}
@@ -474,9 +486,9 @@ function lineInfo(l) {
   const p = CAT && CAT.products.find(x => x.key === l.key);
   const v = p && p.variants.find(x => (x.colour || '') === (l.colour || '') && (x.fit || '') === (l.fit || '') && (x.size || '') === (l.size || ''));
   const pre = !!(p && (p.section === 'preorder' || (l.pre && p.preorder === true && v && (v.stock || 0) <= 0)));
-  const cur = p && p.section === 'current' && !pre;
+  const cur = fromStock(p) && !pre, off = pre && v && colOff(p, v.colour);
   const left = cur && v ? (v.stock || 0) : 99;
-  return { p, v, cur, pre, left, ok: !!(p && v && v.price > 0 && (!cur || left >= l.qty)) };
+  return { p, v, cur, pre, off, left, ok: !!(p && v && v.price > 0 && !off && (!cur || left >= l.qty)) };
 }
 function bagLinesFor(key, l) { return BAG.filter(x => x.key === key && x.colour === l.colour && x.fit === l.fit && x.size === l.size).reduce((s, x) => s + x.qty, 0); }
 
@@ -484,11 +496,12 @@ function addToBag(key) {
   const S = STATE[key], p = CAT.products.find(x => x.key === key);
   const l = { key, colour: p.colours.length ? S.colour : '', fit: p.fits.length ? S.fit : '', size: p.sizes.length ? S.size : '', qty: S.qty };
   const vv = p.variants.find(x => (x.colour || '') === l.colour && (x.fit || '') === l.fit && (x.size || '') === l.size);
-  if (p.section === 'current' && p.preorder === true && vv && (vv.stock || 0) <= 0) l.pre = true;   // sold out: pre-order
+  if (fromStock(p) && p.preorder === true && vv && (vv.stock || 0) <= 0 && !colOff(p, vv.colour)) l.pre = true;   // sold out: pre-order
   if (p.section === 'preorder' && p.preorder === false) { toast('Pre-orders for this item are closed.'); return; }
   if (p.sizes.length && !l.size) { toast('Pick a size first.'); return; }
   const i = lineInfo(l);
   if (!i.v) { toast('That option isn\'t available.'); return; }
+  if (i.off || (!i.cur && !i.pre)) { toast('No pre-orders in this colour.'); return; }
   const have = bagLinesFor(key, l);
   if (i.cur && have + l.qty > i.left) { toast(i.left - have > 0 ? `Only ${i.left - have} more available.` : 'You already have all that\'s left in your cart.'); return; }
   const ex = BAG.find(x => x.key === key && x.colour === l.colour && x.fit === l.fit && x.size === l.size);
@@ -504,7 +517,7 @@ function bagTotal() { return BAG.reduce((s, l) => { const i = lineInfo(l); retur
 function thumbOf(p) { const c = p && cover(p); return c ? `<img src="${esc(c.thumb)}" alt="">` : `<div class="mini-art">${esc(p ? p.name : '?')}</div>`; }
 function bagLineHTML(l, i, edit) {
   const inf = lineInfo(l), p = inf.p;
-  const warn = !p ? 'No longer in the shop' : !inf.v ? 'This option isn\'t available any more' : (inf.cur && inf.left < l.qty) ? (inf.left > 0 ? `Only ${inf.left} left` : 'Sold out') : '';
+  const warn = !p ? 'No longer in the shop' : !inf.v ? 'This option isn\'t available any more' : inf.off ? 'No pre-orders in this colour any more' : (inf.cur && inf.left < l.qty) ? (inf.left > 0 ? `Only ${inf.left} left` : 'Sold out') : '';
   return `<div class="bl">
     <a class="bl-ph" href="#/p/${encodeURIComponent(l.key)}">${thumbOf(p)}</a>
     <div class="bl-info"><div class="bl-nm">${esc(p ? p.name : l.key)}</div><div class="bl-op">${esc(optText(l))}</div>
@@ -714,7 +727,7 @@ function route(fromData) {
   else if (m) { const k = decodeURIComponent(m[1]); product(k); if (CAT) setNav(brandOf(CAT.products.find(x => x.key === k))); if (LAST !== h && !fromData) window.scrollTo(0, 0); }
   else {
     const soap = h === 'soap' || h.indexOf('soap/') === 0, rest = soap ? h.slice(5) : h;
-    home(soap ? 'soap' : 'woah', !fromData && (rest === 'current' || rest === 'preorder') && LAST !== h ? rest : null, fromData || LAST === h);
+    home(soap ? 'soap' : 'woah', !fromData && (rest === 'current' || rest === 'preorder' || rest === 'old') && LAST !== h ? rest : null, fromData || LAST === h);
   }
   LAST = h;
 }
