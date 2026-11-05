@@ -247,6 +247,13 @@
   footer a { color: var(--pale); }
   .toast { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 20px); opacity: 0; visibility: hidden; transition: transform .3s, opacity .3s, visibility .3s; background: var(--navy); color: #fff; padding: 12px 18px; z-index: 50; max-width: calc(100% - 32px); font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
   .toast.on { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
+  .toast { bottom: calc(22px + env(safe-area-inset-bottom)); }
+  .toast.added { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 10px 10px 18px; font-size: 15px; width: max-content; }
+  .toast.added span { min-width: 0; }
+  .toast .tbtn { flex: 0 0 auto; white-space: nowrap; }
+  .toast .tbtn { display: inline-flex; align-items: center; gap: 6px; background: var(--aqua, #7fd3d6); color: var(--navy); font-family: "Oswald", sans-serif; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; text-decoration: none; padding: 9px 16px; font-weight: 500; transition: background .2s, transform .15s; }
+  .toast .tbtn:hover { background: #fff; } .toast .tbtn:active { transform: scale(.96); }
+  @media (max-width: 400px) { .toast.added { font-size: 14px; gap: 10px; width: calc(100% - 32px); padding-left: 14px; } .toast .tbtn { padding: 8px 12px; font-size: 14px; } }
   .err { margin-top: 30px; }
   .fade { animation: fade .4s ease both; }
   @keyframes fade { from { opacity: 0; transform: translateY(8px); } }
@@ -315,7 +322,7 @@ function setNav(b) { BRAND = b; const c = document.getElementById('navCur'), r =
 
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function rp(n) { return Number(n || 0).toLocaleString('en-US') + ' IDR'; }
-function toast(t) { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 3200); }
+function toast(t) { const el = document.getElementById('toast'); el.classList.remove('added'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 3200); }
 function title(h, sub, p) { return `<div class="title"><h2>${ARROW_L}<span>${h}</span>${ARROW_R}</h2>${sub ? `<div class="sub">${sub}</div>` : ''}${p ? `<p>${p}</p>` : ''}</div>`; }
 
 // ---- data: show the last catalogue straight away, then fetch the fresh one ----
@@ -508,7 +515,7 @@ function addToBag(key) {
   if (ex) { ex.qty = Math.min(999, ex.qty + l.qty); if (l.pre) ex.pre = true; } else BAG.push(l);
   saveBag();
   const el = document.getElementById('toast');
-  el.innerHTML = `Added to your cart · <a href="#/cart" style="color:var(--pale)">View cart</a>`; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 3800);
+  el.innerHTML = `<span>✓ Added to your cart</span><a class="tbtn" href="#/cart">View cart →</a>`; el.classList.add('added'); el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 3800);
 }
 function bagQty(i, by) { const l = BAG[i]; if (!l) return; const info = lineInfo(l); let q = l.qty + by; if (info.cur && q > info.left) { toast(`Only ${info.left} available.`); q = info.left; } l.qty = Math.max(1, Math.min(999, q)); saveBag(); bagPage(); }
 function bagDel(i) { BAG.splice(i, 1); saveBag(); bagPage(); }
