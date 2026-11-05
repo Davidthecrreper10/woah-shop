@@ -82,7 +82,7 @@
   /* product cards: photo, name, then quiet details (like the website) */
   .pc { text-decoration: none; display: flex; flex-direction: column; text-align: center; }
   .pc .ph { aspect-ratio: 4 / 5; position: relative; overflow: hidden; background: var(--soft); }
-  .pc .ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
+  .pc .ph img { width: 100%; height: 100%; object-fit: contain; transition: transform .6s; }   /* whole photo, portrait or landscape */
   .pc:hover .ph img { transform: scale(1.04); }
   .tag { position: absolute; top: 12px; left: 12px; font-family: "Oswald", sans-serif; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; padding: 4px 10px; background: #fff; color: var(--navy); }
   .tag.pre { background: var(--teal); color: #fff; }
@@ -105,15 +105,18 @@
 
   /* product page */
   .back { display: inline-block; margin: 26px 0 16px; text-decoration: none; color: var(--navy); font-family: "Oswald", sans-serif; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
-  .pp { display: grid; grid-template-columns: 1.1fr .9fr; gap: 44px; align-items: start; }
-  @media (max-width: 860px) { .pp { grid-template-columns: 1fr; gap: 22px; } }
+  .pp { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 44px; align-items: start; }
+  .pp > * { min-width: 0; }
+  @media (max-width: 860px) { .pp { grid-template-columns: minmax(0, 1fr); gap: 22px; } }
   .gal { position: sticky; top: 86px; }
   @media (max-width: 860px) { .gal { position: static; } }
-  .gal .main { aspect-ratio: 4 / 5; overflow: hidden; background: var(--soft); position: relative; }
-  .gal .main img { width: 100%; height: 100%; object-fit: cover; }
+  .gal .main { overflow: hidden; background: var(--soft); position: relative; display: flex; align-items: center; justify-content: center; min-height: 240px; }
+  .gal .main.noimg { aspect-ratio: 4 / 5; }
+  .gal .main img { display: block; width: 100%; height: auto; max-height: 78vh; object-fit: contain; }   /* landscape photos show whole */
+  @media (max-width: 860px) { .gal .main img { max-height: 70vh; } }
   .gal .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 0; background: rgba(255,255,255,.9); color: var(--navy); font-size: 20px; }
   .gal .nav.l { left: 10px; } .gal .nav.r { right: 10px; }
-  .thumbs { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px; }
+  .thumbs { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px; max-width: 100%; -webkit-overflow-scrolling: touch; }
   .thumbs button { flex: 0 0 72px; height: 72px; overflow: hidden; border: 2px solid transparent; padding: 0; background: var(--soft); }
   .thumbs button.on { border-color: var(--navy); }
   .thumbs img { width: 100%; height: 100%; object-fit: cover; }
@@ -135,6 +138,9 @@
   .qty { display: inline-flex; align-items: center; border: 1px solid #CFC9C2; }
   .qty button { width: 44px; height: 44px; border: 0; background: #fff; color: var(--navy); font-size: 18px; }
   .qty span { min-width: 40px; text-align: center; font-weight: 700; }
+  .qty input { width: 58px; height: 44px; border: 0; border-left: 1px solid #CFC9C2; border-right: 1px solid #CFC9C2; text-align: center; font: inherit; font-weight: 700; font-size: 16px; color: var(--ink); background: #fff; -moz-appearance: textfield; appearance: textfield; border-radius: 0; }
+  .qty input::-webkit-outer-spin-button, .qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .qty.sm input { width: 50px; height: 34px; font-size: 15px; }
   .buy { margin-top: 28px; }
   .buy .btn { width: 100%; padding: 16px 22px; font-size: 16px; }
   .note { margin-top: 16px; padding: 14px 16px; font-size: 14.5px; background: var(--soft); border-left: 3px solid var(--teal); font-weight: 300; }
@@ -150,7 +156,8 @@
   .bad { color: var(--out); } .good { color: var(--ok); }
   .big { font-family: "Oswald", sans-serif; font-weight: 500; font-size: 22px; letter-spacing: .06em; color: var(--navy); }
   .h3 { font-family: "Oswald", sans-serif; font-weight: 400; font-size: 17px; letter-spacing: .16em; text-transform: uppercase; color: var(--navy); margin: 26px 0 10px; }
-  .bl { display: grid; grid-template-columns: 72px 1fr auto; gap: 14px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .bl { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 14px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  @media (max-width: 560px) { .bl { grid-template-columns: 64px minmax(0, 1fr); gap: 4px 12px; } .bl-ph { grid-row: span 2; width: 64px; height: 80px; } .bl-pr { grid-column: 2; } }
   .bl:first-child { padding-top: 0; }
   .bl-ph { width: 72px; height: 88px; background: var(--soft); overflow: hidden; display: block; }
   .bl-ph img { width: 100%; height: 100%; object-fit: cover; }
@@ -168,9 +175,10 @@
   .btn.dis { opacity: .45; pointer-events: none; }
   .btn.wide { width: 100%; margin-top: 10px; }
   .warnbox { border-left-color: var(--out); }
-  .ck { display: grid; grid-template-columns: 1.25fr .85fr; gap: 28px; align-items: start; }
-  .ck.two-col { grid-template-columns: 1fr 1fr; }
-  @media (max-width: 820px) { .ck, .ck.two-col { grid-template-columns: 1fr; } }
+  .ck { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .85fr); gap: 28px; align-items: start; }
+  .ck.two-col { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ck > * { min-width: 0; }
+  @media (max-width: 820px) { .ck, .ck.two-col { grid-template-columns: minmax(0, 1fr); } }
   .ck .sum { position: sticky; top: 86px; }
   @media (max-width: 820px) { .ck .sum { position: static; } }
   .tabs { display: flex; border: 1px solid var(--line); border-bottom: 0; }
@@ -187,6 +195,9 @@
   .brands a small { font-family: "Mulish", sans-serif; font-size: 11px; letter-spacing: .04em; opacity: .75; margin-left: 6px; }
   .field label { display: block; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
   .field input, .field textarea { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; border: 1px solid #CFC9C2; background: #fff; color: var(--ink); border-radius: 0; }
+  .pw { position: relative; }
+  .pw input { padding-right: 70px; }
+  .pw button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: var(--navy); font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; padding: 6px 8px; }
   .field input:focus, .field textarea:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 2px rgba(33,72,107,.15); }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 520px) { .two { grid-template-columns: 1fr; } }
@@ -236,6 +247,7 @@
   .fade { animation: fade .4s ease both; }
   @keyframes fade { from { opacity: 0; transform: translateY(8px); } }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .fade { animation: none; } }
+  html, body { max-width: 100%; overflow-x: clip; }
 </style>
 </head>
 <body>
@@ -246,7 +258,7 @@
       <a class="hide-s" id="navCur" href="#/current">Shop now</a>
       <a class="hide-s" id="navPre" href="#/preorder">Pre-order</a>
       <a class="hide-s" href="#/orders">My orders</a>
-      <a class="bag" href="#/bag" aria-label="Your bag">Bag <b id="bagN">0</b></a>
+      <a class="bag" href="#/cart" aria-label="Your cart">Cart <b id="bagN">0</b></a>
     </nav>
   </div>
 </header>
@@ -362,7 +374,7 @@ function product(key) {
   const price = v ? rp(v.price) : priceRange(p, vs);
   let stockLine = '';
   if (cur && v) stockLine = v.stock <= 0 ? (preOk ? '<div class="stockline low">Sold out in this option, but you can pre-order it</div>' : '<div class="stockline out">Sold out in this option</div>') : v.stock <= LOW ? `<div class="stockline low">Only ${v.stock} left</div>` : '<div class="stockline ok">In stock</div>';
-  const cap = cur && v && !isPre(v) ? Math.max(1, v.stock) : 10;
+  const cap = cur && v && !isPre(v) ? Math.max(1, v.stock) : 999;
   if (S.qty > cap) S.qty = cap;
   const colourChips = p.colours.length ? `<div class="opt"><div class="lbl">Colour <span>${esc(S.colour)}</span></div><div class="chips">${p.colours.map(c => {
       const ok = p.variants.some(x => x.colour === c && avail(x));
@@ -380,7 +392,7 @@ function product(key) {
   document.getElementById('view').innerHTML = `<div class="wrap ${anim ? 'fade' : ''}">
     <a class="back" href="${bpfx(brandOf(p))}${p.section === 'preorder' ? 'preorder' : 'current'}">← Back to the shop</a>
     <div class="pp">
-      <div class="gal"><div class="main">${ph ? `<img src="${esc(ph.url)}" alt="${esc(p.name)}">` : artHTML(p)}
+      <div class="gal"><div class="main ${ph ? '' : 'noimg'}">${ph ? `<img src="${esc(ph.url)}" alt="${esc(p.name)}">` : artHTML(p)}
         ${photos.length > 1 ? `<button class="nav l" aria-label="Previous photo" onclick="img('${esc(key)}',-1)">‹</button><button class="nav r" aria-label="Next photo" onclick="img('${esc(key)}',1)">›</button>` : ''}</div>
         ${photos.length > 1 ? `<div class="thumbs">${photos.map((x, i) => `<button class="${i === S.img ? 'on' : ''}" onclick="img('${esc(key)}',${i - S.img})" aria-label="Photo ${i + 1}"><img src="${esc(x.thumb)}" alt=""></button>`).join('')}</div>` : ''}</div>
       <div>
@@ -390,8 +402,8 @@ function product(key) {
         ${p.desc ? `<p class="desc">${esc(p.desc)}</p>` : ''}
         ${colourChips}${fitChips}${sizeChips}
         ${stockLine}
-        <div class="opt"><div class="lbl">Quantity</div><div class="qty"><button aria-label="One less" onclick="qty('${esc(key)}',-1)">−</button><span>${S.qty}</span><button aria-label="One more" onclick="qty('${esc(key)}',1)">+</button></div></div>
-        <div class="buy"><button class="btn solid" ${canOrder() && can ? '' : 'disabled'} onclick="addToBag('${esc(key)}')">${!canOrder() ? 'Ordering opens soon' : closed ? 'Pre-orders closed' : !v ? 'Pick a size' : !can ? 'Sold out' : (isPre(v) ? 'Pre-order' : 'Add to bag') + ' · ' + rp(v.price * S.qty)}</button></div>
+        <div class="opt"><div class="lbl">Quantity</div><div class="qty"><button aria-label="One less" onclick="qty('${esc(key)}',-1)">−</button><input type="number" inputmode="numeric" min="1" max="999" aria-label="Quantity" value="${S.qty}" onchange="setQty('${esc(key)}',this.value)"><button aria-label="One more" onclick="qty('${esc(key)}',1)">+</button></div></div>
+        <div class="buy"><button class="btn solid" ${canOrder() && can ? '' : 'disabled'} onclick="addToBag('${esc(key)}')">${!canOrder() ? 'Ordering opens soon' : closed ? 'Pre-orders closed' : !v ? 'Pick a size' : !can ? 'Sold out' : (isPre(v) ? 'Pre-order' : 'Add to cart') + ' · ' + rp(v.price * S.qty)}</button></div>
         ${p.section === 'preorder' || (v && isPre(v)) ? '<div class="note"><b>How pre-orders work:</b> you order and pay now, we order enough for everyone, and we let you know when yours is ready to collect.</div>' : '<div class="note">Collect at Green School Bali. We\'ll tell you where and when after you order.</div>'}
       </div>
     </div></div>`;
@@ -400,6 +412,10 @@ function product(key) {
 function pick(key, what, val) { STATE[key][what] = val; product(key); }
 function img(key, by) { const p = CAT.products.find(x => x.key === key), n = (p.photos || []).length; if (!n) return; STATE[key].img = (STATE[key].img + by + n) % n; product(key); }
 function qty(key, by) { STATE[key].qty = Math.max(1, STATE[key].qty + by); product(key); }
+// typed quantity: redraw after the browser has finished the change/blur, so the page isn't swapped mid-event
+function setQty(key, val) { STATE[key].qty = Math.max(1, Math.min(999, Math.floor(Number(val) || 1))); setTimeout(() => product(key), 0); }
+function bagSet(i, val) { const l = BAG[i]; if (!l) return; const by = Math.max(1, Math.floor(Number(val) || 1)) - l.qty; setTimeout(() => bagQty(i, by), 0); }
+function pwToggle(id, b) { const el = document.getElementById(id); if (!el) return; const show = el.type === 'password'; el.type = show ? 'text' : 'password'; b.textContent = show ? 'Hide' : 'Show'; b.setAttribute('aria-label', show ? 'Hide password' : 'Show password'); }
 
 
 // ================= bag, checkout, accounts, my orders =================
@@ -448,14 +464,14 @@ function addToBag(key) {
   const i = lineInfo(l);
   if (!i.v) { toast('That option isn\'t available.'); return; }
   const have = bagLinesFor(key, l);
-  if (i.cur && have + l.qty > i.left) { toast(i.left - have > 0 ? `Only ${i.left - have} more available.` : 'You already have all that\'s left in your bag.'); return; }
+  if (i.cur && have + l.qty > i.left) { toast(i.left - have > 0 ? `Only ${i.left - have} more available.` : 'You already have all that\'s left in your cart.'); return; }
   const ex = BAG.find(x => x.key === key && x.colour === l.colour && x.fit === l.fit && x.size === l.size);
-  if (ex) { ex.qty = Math.min(10, ex.qty + l.qty); if (l.pre) ex.pre = true; } else BAG.push(l);
+  if (ex) { ex.qty = Math.min(999, ex.qty + l.qty); if (l.pre) ex.pre = true; } else BAG.push(l);
   saveBag();
   const el = document.getElementById('toast');
-  el.innerHTML = `Added to your bag · <a href="#/bag" style="color:var(--pale)">View bag</a>`; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 3800);
+  el.innerHTML = `Added to your cart · <a href="#/cart" style="color:var(--pale)">View cart</a>`; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 3800);
 }
-function bagQty(i, by) { const l = BAG[i]; if (!l) return; const info = lineInfo(l); let q = l.qty + by; if (info.cur && q > info.left) { toast(`Only ${info.left} available.`); q = info.left; } l.qty = Math.max(1, Math.min(10, q)); saveBag(); bagPage(); }
+function bagQty(i, by) { const l = BAG[i]; if (!l) return; const info = lineInfo(l); let q = l.qty + by; if (info.cur && q > info.left) { toast(`Only ${info.left} available.`); q = info.left; } l.qty = Math.max(1, Math.min(999, q)); saveBag(); bagPage(); }
 function bagDel(i) { BAG.splice(i, 1); saveBag(); bagPage(); }
 function bagTotal() { return BAG.reduce((s, l) => { const i = lineInfo(l); return s + (i.v ? i.v.price * l.qty : 0); }, 0); }
 
@@ -467,20 +483,20 @@ function bagLineHTML(l, i, edit) {
     <a class="bl-ph" href="#/p/${encodeURIComponent(l.key)}">${thumbOf(p)}</a>
     <div class="bl-info"><div class="bl-nm">${esc(p ? p.name : l.key)}</div><div class="bl-op">${esc(optText(l))}</div>
       <div class="bl-ty">${inf.pre ? 'Pre-order' : 'In stock'}${warn ? ` · <b class="bad">${esc(warn)}</b>` : ''}</div>
-      ${edit ? `<div class="bl-act"><div class="qty sm"><button aria-label="One less" onclick="bagQty(${i},-1)">−</button><span>${l.qty}</span><button aria-label="One more" onclick="bagQty(${i},1)">+</button></div><button class="lnk" onclick="bagDel(${i})">Remove</button></div>` : `<div class="bl-op">Qty ${l.qty}</div>`}</div>
+      ${edit ? `<div class="bl-act"><div class="qty sm"><button aria-label="One less" onclick="bagQty(${i},-1)">−</button><input type="number" inputmode="numeric" min="1" max="999" aria-label="Quantity" value="${l.qty}" onchange="bagSet(${i},this.value)"><button aria-label="One more" onclick="bagQty(${i},1)">+</button></div><button class="lnk" onclick="bagDel(${i})">Remove</button></div>` : `<div class="bl-op">Qty ${l.qty}</div>`}</div>
     <div class="bl-pr">${inf.v ? rp(inf.v.price * l.qty) : ''}</div></div>`;
 }
 function pageShell(h, sub, body) { product.last = null; const same = pageShell.last === location.hash, y = window.scrollY; pageShell.last = location.hash; document.getElementById('view').innerHTML = `<main class="wrap narrow ${same ? '' : 'fade'}">${title(h, sub)}${body}</main>`; window.scrollTo(0, same ? y : 0); }
 
 function bagPage() {
-  if (!CAT) { pageShell('Your bag', '', '<div class="sk" style="aspect-ratio:3/1"></div>'); return; }
+  if (!CAT) { pageShell('Your cart', '', '<div class="sk" style="aspect-ratio:3/1"></div>'); return; }
   BAG = BAG.filter(l => l.qty > 0);
-  if (!BAG.length) { pageShell('Your bag', '', `<div class="empty">Your bag is empty.<br><br><a class="btn solid" href="#/">Go shopping</a></div>`); return; }
+  if (!BAG.length) { pageShell('Your cart', '', `<div class="empty">Your cart is empty.<br><br><a class="btn solid" href="#/">Go shopping</a></div>`); return; }
   const bad = BAG.some(l => !lineInfo(l).ok);
-  pageShell('Your bag', BAG.reduce((s, l) => s + l.qty, 0) + ' item' + (BAG.reduce((s, l) => s + l.qty, 0) > 1 ? 's' : ''), `
+  pageShell('Your cart', BAG.reduce((s, l) => s + l.qty, 0) + ' item' + (BAG.reduce((s, l) => s + l.qty, 0) > 1 ? 's' : ''), `
     <div class="box">${BAG.map((l, i) => bagLineHTML(l, i, true)).join('')}
       <div class="tot"><span>Total</span><b>${rp(bagTotal())}</b></div></div>
-    ${bad ? '<div class="note warnbox">Something in your bag needs a change before you can check out (see the red notes above).</div>' : ''}
+    ${bad ? '<div class="note warnbox">Something in your cart needs a change before you can check out (see the red notes above).</div>' : ''}
     <div class="row-btns"><a class="btn" href="#/">Keep shopping</a>${canOrder() ? `<a class="btn solid ${bad ? 'dis' : ''}" href="${bad ? 'javascript:void 0' : '#/checkout'}">Check out</a>` : '<button class="btn solid" disabled>Ordering opens soon</button>'}</div>`);
 }
 
@@ -503,7 +519,7 @@ function doSignup(after) {
 }
 function loginHTML(after) {
   return `<div class="field"><label for="liId">Email or phone</label><input id="liId" autocomplete="username"></div>
-    <div class="field"><label for="liPw">Password</label><input id="liPw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin(${after})"></div>
+    <div class="field"><label for="liPw">Password</label><div class="pw"><input id="liPw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin(${after})"><button type="button" aria-label="Show password" onclick="pwToggle('liPw',this)">Show</button></div></div>
     <button class="btn solid wide" onclick="doLogin(${after})">Log in</button>
     <div class="hint">Forgot your password? Email ${esc(settings().contact)} and we'll sort it out.</div>`;
 }
@@ -514,9 +530,9 @@ function ckKeep() { ['fName', 'fEmail', 'fPhone', 'fNote'].forEach(id => { const
 function checkoutPage(keep) {
   if (!CAT) { pageShell('Checkout', '', '<div class="sk" style="aspect-ratio:3/1"></div>'); return; }
   if (keep) ckKeep();
-  if (!BAG.length) { location.hash = '#/bag'; return; }
+  if (!BAG.length) { location.hash = '#/cart'; return; }
   if (!canOrder()) { pageShell('Checkout', '', '<div class="empty">Ordering isn\'t open yet. Please check back soon!</div>'); return; }
-  if (BAG.some(l => !lineInfo(l).ok)) { location.hash = '#/bag'; return; }
+  if (BAG.some(l => !lineInfo(l).ok)) { location.hash = '#/cart'; return; }
   const s = settings(), y = window.scrollY; CK.rendered = true;
   const who = ACC ? `<div class="box acc"><div>Ordering as <b>${esc(ACC.name)}</b><br><span class="muted">${esc([ACC.email, ACC.phone ? '+' + ACC.phone : ''].filter(Boolean).join(' · '))}</span></div><button class="lnk" onclick="logout()">Log out</button></div>`
     : `<div class="tabs">${[['guest', 'Guest'], ['login', 'Log in'], ['signup', 'Create account']].map(([k, l]) => `<button class="${CK.mode === k ? 'on' : ''}" onclick="ckSet('mode','${k}')">${l}</button>`).join('')}</div>
@@ -525,7 +541,7 @@ function checkoutPage(keep) {
         <div class="two"><div class="field"><label for="fEmail">Email</label><input id="fEmail" type="email" autocomplete="email" value="${esc(CK.fEmail || '')}"></div>
           <div class="field"><label for="fPhone">Phone / WhatsApp</label><input id="fPhone" type="tel" autocomplete="tel" placeholder="08…" value="${esc(CK.fPhone || '')}"></div></div>
         <div class="hint">We need an email or a phone number (or both) to reach you about your order.</div>
-        ${CK.mode === 'signup' ? `<div class="field"><label for="fPw">Choose a password *</label><input id="fPw" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div><button class="btn wide" onclick="doSignup(()=>checkoutPage(true))">Create account</button>` : ''}`}
+        ${CK.mode === 'signup' ? `<div class="field"><label for="fPw">Choose a password *</label><div class="pw"><input id="fPw" type="password" autocomplete="new-password" placeholder="At least 6 characters"><button type="button" aria-label="Show password" onclick="pwToggle('fPw',this)">Show</button></div></div><button class="btn wide" onclick="doSignup(()=>checkoutPage(true))">Create account</button>` : ''}`}
         <div class="fmsg" id="accMsg"></div></div>`;
   const showForm = ACC || CK.mode === 'guest';
   pageShell('Checkout', 'Almost done', `
@@ -548,7 +564,7 @@ function checkoutPage(keep) {
         <div class="tot"><span>Total</span><b>${rp(bagTotal())}</b></div>
         ${BAG.some(l => lineInfo(l).pre) ? '<div class="hint">Pre-order items are ordered for you and we\'ll tell you when they\'re ready to collect.</div>' : ''}
         ${showForm ? `<button class="btn solid wide" id="placeBtn" onclick="placeOrder()">Place order · ${rp(bagTotal())}</button><div class="fmsg" id="ckMsg"></div>` : '<div class="hint">Log in or pick Guest to continue.</div>'}
-        <a class="lnk" href="#/bag">← Edit bag</a></aside>
+        <a class="lnk" href="#/cart">← Edit cart</a></aside>
     </div>`);
   if (keep) window.scrollTo(0, y);
 }
@@ -665,7 +681,7 @@ function route(fromData) {
   const m = h.match(/^p\/(.+)$/);
   const dn = h.match(/^done\/(.+)$/);
   if (h !== 'checkout') CK.rendered = false;
-  if (h === 'bag') bagPage();
+  if (h === 'bag' || h === 'cart') bagPage();
   else if (h === 'checkout') { if (!fromData || !CK.rendered) checkoutPage(); else checkoutPage(true); }   // fresh data (e.g. bank details just added): redraw, keeping what they typed
   else if (dn) donePage(decodeURIComponent(dn[1]));
   else if (h === 'orders') { if (!fromData) ordersPage(); }
