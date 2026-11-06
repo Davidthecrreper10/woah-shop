@@ -45,7 +45,7 @@
     .bar nav { justify-content: flex-start; gap: 0 4px; }
     .bar nav a { white-space: nowrap; }
   }
-  @media (max-width: 440px) { .bar nav a, .bar nav button { font-size: 12px; padding: 7px 3px; letter-spacing: .02em; } .bar .bag { padding: 4px 6px !important; } }
+  @media (max-width: 440px) { .nav-long { display: none; } .bar nav a, .bar nav button { font-size: 12px; padding: 7px 3px; letter-spacing: .02em; } .bar .bag { padding: 4px 6px !important; } }
   @media (max-width: 360px) { .bar nav a, .bar nav button { font-size: 11px; padding: 7px 2px; letter-spacing: 0; } }
 
   /* hero: deep navy, big tracked title, paper collage banner */
@@ -289,7 +289,7 @@
     <nav>
       <a class="hide-s" id="navCur" href="#/current">Shop now</a>
       <a class="hide-s" id="navPre" href="#/preorder">Pre-order</a>
-      <a class="hide-s" href="#/old">Old merch</a>
+      <a class="hide-s" href="#/vintage">Vintage<span class="nav-long"> merch</span></a>
       <a class="hide-s" href="#/orders">My orders</a>
       <a class="bag" href="#/cart" aria-label="Your cart">Cart <b id="bagN">0</b></a>
     </nav>
@@ -317,7 +317,7 @@ let CAT = null, STATE = {}, BRAND = 'woah';
 function brandOf(p) { return /soap/i.test(p && p.name || '') ? 'soap' : 'woah'; }
 function bpfx(b) { return '#/'; }   // WOAH and SOAP merch share one page now
 function colOff(p, c) { c = String(c || '').trim().toLowerCase(); return !!c && (p && p.preOff || []).some(x => String(x).trim().toLowerCase() === c); }   // no pre-orders for this colour
-function fromStock(p) { return !!p && (p.section === 'current' || p.section === 'old'); }   // Current merch and Old merch sell from stock
+function fromStock(p) { return !!p && (p.section === 'current' || p.section === 'old'); }   // Current merch and Vintage merch (section 'old') sell from stock
 function setNav(b) { BRAND = b; const c = document.getElementById('navCur'), r = document.getElementById('navPre'); if (c) c.href = bpfx(b) + 'current'; if (r) r.href = bpfx(b) + 'preorder'; }
 
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -381,8 +381,8 @@ function home(brand, focus, keep) {
         <div class="grid ${keep ? '' : 'rise'}">${ps ? (cur.length ? cur.map(cardHTML).join('') : soon('New merch is coming soon.')) : sk}</div></section>
       <section class="sec" id="preorder">${title('Pre-order', 'Coming soon', 'Order now and we\'ll let you know when it arrives. No stock limits: everyone who orders gets one.')}
         <div class="grid ${keep ? '' : 'rise'}">${ps ? (pre.length ? pre.map(cardHTML).join('') : soon('New designs are coming soon.')) : sk}</div></section>
-      <section class="sec" id="old">${title('Old merch', 'Earlier designs, while stock lasts')}
-        <div class="grid ${keep ? '' : 'rise'}">${ps ? (old.length ? old.map(cardHTML).join('') : soon('Old favourites are coming back soon.')) : sk}</div></section>
+      <section class="sec" id="vintage">${title('Vintage merch', 'Earlier designs, while stock lasts')}
+        <div class="grid ${keep ? '' : 'rise'}">${ps ? (old.length ? old.map(cardHTML).join('') : soon('Vintage favourites are coming back soon.')) : sk}</div></section>
     </main>`;
   document.title = 'WOAH Shop · WOAH Festival merch';
   if (focus) { const el = document.getElementById(focus); if (el) setTimeout(() => el.scrollIntoView(), 30); } else if (!keep) window.scrollTo(0, 0);
@@ -429,13 +429,13 @@ function product(key) {
   const can = v && avail(v) && !closed;
   const anim = product.last !== key; product.last = key;
   document.getElementById('view').innerHTML = `<div class="wrap ${anim ? 'fade' : ''}">
-    <a class="back" href="${bpfx(brandOf(p))}${p.section === 'preorder' ? 'preorder' : p.section === 'old' ? 'old' : 'current'}">← Back to the shop</a>
+    <a class="back" href="${bpfx(brandOf(p))}${p.section === 'preorder' ? 'preorder' : p.section === 'old' ? 'vintage' : 'current'}">← Back to the shop</a>
     <div class="pp">
       <div class="gal"><div class="main ${ph ? '' : 'noimg'}" ${photos.length > 1 ? `ontouchstart="tStart(event)" ontouchend="tEnd(event,'${esc(key)}')"` : ''}>${ph ? `<img class="${product.dir ? (product.dir > 0 ? 'in-r' : 'in-l') : anim ? 'in-f' : ''}" src="${esc(ph.url)}" alt="${esc(p.name)}">` : artHTML(p)}
         ${photos.length > 1 ? `<button class="nav l" aria-label="Previous photo" onclick="img('${esc(key)}',-1)">‹</button><button class="nav r" aria-label="Next photo" onclick="img('${esc(key)}',1)">›</button>` : ''}</div>
         ${photos.length > 1 ? `<div class="thumbs">${photos.map((x, i) => `<button class="${i === S.img ? 'on' : ''}" onclick="img('${esc(key)}',${i - S.img})" aria-label="Photo ${i + 1}"><img src="${esc(x.thumb)}" alt=""></button>`).join('')}</div>` : ''}</div>
       <div>
-        <div class="kick">${p.section === 'preorder' || (v && isPre(v)) ? 'Pre-order' : p.section === 'old' ? 'Old merch · in stock' : 'In stock'}</div>
+        <div class="kick">${p.section === 'preorder' || (v && isPre(v)) ? 'Pre-order' : p.section === 'old' ? 'Vintage merch · in stock' : 'In stock'}</div>
         <h1>${esc(p.name).replace(/-/g, '\u2011')}</h1>
         <div class="price">${price}</div>
         ${p.desc ? `<p class="desc">${esc(p.desc)}</p>` : ''}
@@ -734,7 +734,8 @@ function route(fromData) {
   else if (m) { const k = decodeURIComponent(m[1]); product(k); if (CAT) setNav(brandOf(CAT.products.find(x => x.key === k))); if (LAST !== h && !fromData) window.scrollTo(0, 0); }
   else {
     const soap = h === 'soap' || h.indexOf('soap/') === 0, rest = soap ? h.slice(5) : h;
-    home(soap ? 'soap' : 'woah', !fromData && (rest === 'current' || rest === 'preorder' || rest === 'old') && LAST !== h ? rest : null, fromData || LAST === h);
+    const sec = rest === 'old' ? 'vintage' : rest;   // old #/old links still work
+    home(soap ? 'soap' : 'woah', !fromData && (sec === 'current' || sec === 'preorder' || sec === 'vintage') && LAST !== h ? sec : null, fromData || LAST === h);
   }
   LAST = h;
 }
