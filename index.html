@@ -571,8 +571,12 @@ function loginHTML(after) {
 }
 
 // ---- checkout ----
-function ckSet(k, v) { CK[k] = v; checkoutPage(true); }
-function ckKeep() { ['fName', 'fEmail', 'fPhone', 'fNote'].forEach(id => { const el = document.getElementById(id); if (el) CK[id] = el.value; }); }
+function ckSet(k, v) { CK[k] = v; ckSave(); checkoutPage(true); }
+function ckKeep() { ['fName', 'fEmail', 'fPhone', 'fNote'].forEach(id => { const el = document.getElementById(id); if (el) CK[id] = el.value; }); ckSave(); }
+/* Remember the checkout in this tab, so a phone that reloads the page (e.g. after taking a photo) keeps what they typed and their screenshot */
+function ckSave() { const k = 'woahCheckout', c = Object.assign({}, CK, { rendered: false }); try { sessionStorage.setItem(k, JSON.stringify(c)); } catch (e) { try { delete c.proof; sessionStorage.setItem(k, JSON.stringify(c)); } catch (x) {} } }
+try { const c = JSON.parse(sessionStorage.getItem('woahCheckout') || 'null'); if (c && typeof c === 'object') CK = Object.assign(CK, c, { rendered: false }); } catch (e) {}
+document.addEventListener('input', e => { if (e.target && /^f(Name|Email|Phone|Note)$/.test(e.target.id)) ckKeep(); });
 function checkoutPage(keep) {
   if (!CAT) { pageShell('Checkout', '', '<div class="sk" style="aspect-ratio:3/1"></div>'); return; }
   if (keep) ckKeep();
@@ -617,7 +621,7 @@ function checkoutPage(keep) {
 function ckProof(input) {
   const f = input.files && input.files[0]; input.value = ''; if (!f) return;
   msg('prMsg', 'Adding…');
-  shrinkImg(f).then(r => { CK.proof = r; checkoutPage(true); }).catch(e => msg('prMsg', e.message, true));
+  shrinkImg(f).then(r => { CK.proof = r; ckSave(); checkoutPage(true); }).catch(e => msg('prMsg', e.message, true));
 }
 function placeOrder() {
   if (BUSY) return;
@@ -631,7 +635,7 @@ function placeOrder() {
   BUSY = true; msg('ckMsg', 'Placing your order…'); const b = document.getElementById('placeBtn'); if (b) b.disabled = true;
   api({ action: 'shopOrder', buyer, pay: CK.pay, collect: CK.collect, note: CK.fNote || '', cart: BAG, token: TOKEN || undefined, website: val('fWeb'), proof: CK.pay !== 'cash' && CK.proof ? { type: CK.proof.type, data: CK.proof.data } : undefined })
     .then(d => {
-      BUSY = false; BAG = []; saveBag(); CK.proof = null;
+      BUSY = false; BAG = []; saveBag(); CK.proof = null; try { sessionStorage.removeItem('woahCheckout'); } catch (e) {}
       d.contact = buyer.cemail || buyer.phone;
       try { localStorage.setItem('woahLastOrder', JSON.stringify(d)); } catch (e) {}
       CAT && load();
