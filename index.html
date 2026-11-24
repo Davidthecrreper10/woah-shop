@@ -175,6 +175,7 @@
   .bl-act .lnk { margin-top: 0; }
   .tot { display: flex; justify-content: space-between; align-items: baseline; padding-top: 14px; font-size: 15px; }
   .tot b { font-size: 20px; color: var(--navy); }
+  .tot.don { padding-top: 10px; font-size: 14px; color: var(--muted, #555); } .tot.don b { font-size: 15px; } .tot.don:empty { display: none; }
   .row-btns { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; margin-top: 8px; }
   .btn.dis { opacity: .45; pointer-events: none; }
   .btn.wide { width: 100%; margin-top: 10px; }
@@ -528,6 +529,24 @@ function addToBag(key) {
 function bagQty(i, by) { const l = BAG[i]; if (!l) return; const info = lineInfo(l); let q = l.qty + by; if (info.cur && q > info.left) { toast(`Only ${info.left} available.`); q = info.left; } l.qty = Math.max(1, Math.min(999, q)); saveBag(); bagPage(); }
 function bagDel(i) { BAG.splice(i, 1); saveBag(); bagPage(); }
 function bagTotal() { return BAG.reduce((s, l) => { const i = lineInfo(l); return s + (i.v ? i.v.price * l.qty : 0); }, 0); }
+// Optional donation at checkout: added to what they pay, saved on the order as its own "Donation" line.
+function donOf() { return Math.max(0, Math.min(10000000, Number(CK.don) || 0)); }
+function payTotal() { return bagTotal() + donOf(); }
+function setDon(v) { if (v === 'other') { CK.donOther = true; } else { CK.donOther = false; CK.don = v; } ckSave(); checkoutPage(true); if (v === 'other') { const e = document.getElementById('fDon'); if (e) e.focus(); } }
+function donTyped(v) {   // typing in "Other amount": update the totals without redrawing the page (keeps the keyboard open)
+  CK.don = Number(String(v).replace(/\D/g, '')) || 0; ckSave();
+  const t = rp(payTotal()), set = (id, h) => { const e = document.getElementById(id); if (e) e.innerHTML = h; };
+  set('sumDon', donOf() ? `<span>Donation</span><b>${rp(donOf())}</b>` : ''); set('sumTot', `<span>Total</span><b>${t}</b>`);
+  const b = document.getElementById('placeBtn'); if (b) b.textContent = 'Place order · ' + t;
+  const pi = document.getElementById('payInfoBox'); if (pi && CK.pay) pi.innerHTML = payInfo(CK.pay, payTotal(), esc((ACC ? ACC.name : CK.fName) || 'your name'));
+}
+function donHTML() {
+  const d = donOf(), chip = (v, l) => `<button class="chip ${!CK.donOther && d === v ? 'on' : ''}" onclick="setDon(${v})">${l}</button>`;
+  return `<h3 class="h3">3 · Add a donation? <span class="muted" style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></h3>
+    <div class="hint" style="margin:0 0 8px">Donations help run the WOAH Festival. It's added to your total.</div>
+    <div class="chips">${chip(0, 'No thanks')}${[10000, 25000, 50000, 100000].map(v => chip(v, rp(v))).join('')}<button class="chip ${CK.donOther ? 'on' : ''}" onclick="setDon('other')">Other amount</button></div>
+    ${CK.donOther ? `<div class="field" style="margin-top:8px;max-width:260px"><label for="fDon">Donation amount (IDR)</label><input id="fDon" inputmode="numeric" placeholder="e.g. 75000" value="${d || ''}" oninput="donTyped(this.value)"></div>` : ''}`;
+}
 
 function thumbOf(p, colour) { const c = p && (galFor(p, colour)[0] || cover(p)); return c ? `<img src="${esc(c.thumb)}" alt="">` : `<div class="mini-art">${esc(p ? p.name : '?')}</div>`; }
 function bagLineHTML(l, i, edit) {
@@ -610,18 +629,20 @@ function checkoutPage(keep) {
         <div class="field"><label>I am a…</label><div class="chips">${ROLES.map(r => `<button class="chip ${CK.role === r ? 'on' : ''}" onclick="ckSet('role','${r}')">${r}</button>`).join('')}</div></div>
         <h3 class="h3">2 · Where will you collect?</h3>
         <div class="cards">${Object.keys(s.collect).map(k => `<button class="rc ${CK.collect === k ? 'on' : ''}" onclick="ckSet('collect','${k}')"><b>${esc(k === 'spirit' ? 'Spirit Friday' : 'Shanti House')}</b><span>${esc(s.collect[k])}</span></button>`).join('')}</div>
-        <h3 class="h3">3 · How will you pay?</h3>
+        ${donHTML()}
+        <h3 class="h3">4 · How will you pay?</h3>
         <div class="cards">${Object.keys(PAY).filter(k => k !== 'transfer' || s.bank).map(k => `<button class="rc ${CK.pay === k ? 'on' : ''}" onclick="ckSet('pay','${k}')"><b>${PAY[k].t}</b><span>${PAY[k].d}</span></button>`).join('')}</div>
-        ${CK.pay && CK.pay !== 'cash' ? `<h3 class="h3">4 · Pay, then upload your screenshot</h3>${payInfo(CK.pay, bagTotal(), esc((ACC ? ACC.name : CK.fName) || 'your name'))}
+        ${CK.pay && CK.pay !== 'cash' ? `<h3 class="h3">5 · Pay, then upload your screenshot</h3><div id="payInfoBox">${payInfo(CK.pay, payTotal(), esc((ACC ? ACC.name : CK.fName) || 'your name'))}</div>
           <div class="proof"><label class="btn wide ${CK.proof ? '' : 'solid'}">${CK.proof ? 'Change screenshot' : 'Upload payment screenshot *'}<input type="file" accept="image/*" hidden onchange="ckProof(this)"></label>
           ${CK.proof ? `<div class="proofok"><img src="${CK.proof.data}" alt="Your payment screenshot"><span>Screenshot added ✓</span></div>` : '<div class="hint">We need a screenshot of your payment to confirm it. Your order is placed once it\'s uploaded.</div>'}<div class="fmsg" id="prMsg"></div></div>` : ''}
         <div class="field" style="margin-top:18px"><label for="fNote">Anything we should know? (optional)</label><textarea id="fNote" rows="2" placeholder="e.g. it's a gift, or which Spirit Friday suits you">${esc(CK.fNote || '')}</textarea></div>
         <input type="text" id="fWeb" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">` : ''}
       </div>
       <aside class="box sum"><h3 class="h3" style="margin-top:0">Your order</h3>${BAG.map((l, i) => bagLineHTML(l, i, false)).join('')}
-        <div class="tot"><span>Total</span><b>${rp(bagTotal())}</b></div>
+        <div class="tot don" id="sumDon">${donOf() ? `<span>Donation</span><b>${rp(donOf())}</b>` : ''}</div>
+        <div class="tot" id="sumTot"><span>Total</span><b>${rp(payTotal())}</b></div>
         ${BAG.some(l => lineInfo(l).pre) ? '<div class="hint">Pre-order items are ordered for you and we\'ll tell you when they\'re ready to collect.</div>' : ''}
-        ${showForm ? `<button class="btn solid wide" id="placeBtn" onclick="placeOrder()">Place order · ${rp(bagTotal())}</button><div class="fmsg" id="ckMsg"></div>` : '<div class="hint">Log in or pick Guest to continue.</div>'}
+        ${showForm ? `<button class="btn solid wide" id="placeBtn" onclick="placeOrder()">Place order · ${rp(payTotal())}</button><div class="fmsg" id="ckMsg"></div>` : '<div class="hint">Log in or pick Guest to continue.</div>'}
         <a class="lnk" href="#/cart">← Edit cart</a></aside>
     </div>`);
   if (keep) window.scrollTo(0, y);
@@ -641,9 +662,9 @@ function placeOrder() {
   if (!CK.pay) return msg('ckMsg', 'Pick how you\'ll pay.', true);
   if (CK.pay !== 'cash' && !CK.proof) return msg('ckMsg', 'Please pay first and upload a screenshot of the payment.', true);
   BUSY = true; msg('ckMsg', 'Placing your order…'); const b = document.getElementById('placeBtn'); if (b) b.disabled = true;
-  api({ action: 'shopOrder', buyer, pay: CK.pay, collect: CK.collect, note: CK.fNote || '', cart: BAG, token: TOKEN || undefined, website: val('fWeb'), proof: CK.pay !== 'cash' && CK.proof ? { type: CK.proof.type, data: CK.proof.data } : undefined })
+  api({ action: 'shopOrder', buyer, pay: CK.pay, collect: CK.collect, note: CK.fNote || '', cart: BAG, donation: donOf(), token: TOKEN || undefined, website: val('fWeb'), proof: CK.pay !== 'cash' && CK.proof ? { type: CK.proof.type, data: CK.proof.data } : undefined })
     .then(d => {
-      BUSY = false; BAG = []; saveBag(); CK.proof = null; try { sessionStorage.removeItem('woahCheckout'); } catch (e) {}
+      BUSY = false; BAG = []; saveBag(); CK.proof = null; CK.don = 0; CK.donOther = false; try { sessionStorage.removeItem('woahCheckout'); } catch (e) {}
       d.contact = buyer.cemail || buyer.phone;
       try { localStorage.setItem('woahLastOrder', JSON.stringify(d)); } catch (e) {}
       CAT && load();
