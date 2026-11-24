@@ -342,6 +342,14 @@ function load() {
 // ---- helpers about products ----
 function stockOf(p) { return p.variants.reduce((s, v) => s + (v.stock || 0), 0); }
 function cover(p) { return p.photos && p.photos[0]; }
+// Photos for the colour someone picked: that colour's photos first, then the "all colours" ones. Photos get a colour on the
+// dashboard Shop page (one upload box per colour). Products without colour photos just show all their photos.
+function galFor(p, colour) {
+  const all = (p && p.photos) || [];
+  if (!colour || !all.some(x => x.colour)) return all;
+  const list = all.filter(x => x.colour === colour).concat(all.filter(x => !x.colour));
+  return list.length ? list : all;
+}
 function priceRange(p, vs) { const ps = (vs || p.variants).map(v => v.price).filter(Boolean); if (!ps.length) return ''; const a = Math.min(...ps), b = Math.max(...ps); return a === b ? rp(a) : rp(a).replace(' IDR', '') + ' – ' + rp(b); }
 function sizeRange(p) { return p.sizes.length > 1 ? 'Sizes ' + p.sizes[0] + '–' + p.sizes[p.sizes.length - 1] : p.sizes.length ? 'Size ' + p.sizes[0] : ''; }
 function listAnd(a) { return a.length > 1 ? a.slice(0, -1).join(', ') + ' & ' + a[a.length - 1] : (a[0] || ''); }
@@ -407,7 +415,7 @@ function product(key) {
   const chosen = vs.find(v => v.size === S.size) || (p.sizes.length ? null : vs[0]);
   if (chosen && !avail(chosen)) S.size = null;
   const v = vs.find(x => x.size === S.size) || (p.sizes.length ? null : vs[0]);
-  const photos = p.photos || [];
+  const photos = galFor(p, p.colours.length ? S.colour : '');
   if (S.img >= photos.length) S.img = 0;
   const ph = photos[S.img];
   const price = v ? rp(v.price) : priceRange(p, vs);
@@ -449,8 +457,8 @@ function product(key) {
   document.title = p.name + ' · WOAH Shop';
   product.dir = 0; preload(p);
 }
-function pick(key, what, val) { STATE[key][what] = val; product(key); }
-function img(key, by) { const p = CAT.products.find(x => x.key === key), n = (p.photos || []).length; if (!n || !by) return; STATE[key].img = (STATE[key].img + by + n) % n; product.dir = by > 0 ? 1 : -1; product(key); }
+function pick(key, what, val) { if (what === 'colour' && STATE[key].colour !== val) STATE[key].img = 0; STATE[key][what] = val; product(key); }
+function img(key, by) { const p = CAT.products.find(x => x.key === key), n = galFor(p, p.colours.length ? STATE[key].colour : '').length; if (!n || !by) return; STATE[key].img = (STATE[key].img + by + n) % n; product.dir = by > 0 ? 1 : -1; product(key); }
 let TOUCH = null;
 function tStart(e) { const t = e.touches[0]; TOUCH = { x: t.clientX, y: t.clientY }; }
 function tEnd(e, key) { if (!TOUCH) return; const t = e.changedTouches[0], dx = t.clientX - TOUCH.x, dy = t.clientY - TOUCH.y; TOUCH = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) img(key, dx < 0 ? 1 : -1); }
@@ -521,12 +529,12 @@ function bagQty(i, by) { const l = BAG[i]; if (!l) return; const info = lineInfo
 function bagDel(i) { BAG.splice(i, 1); saveBag(); bagPage(); }
 function bagTotal() { return BAG.reduce((s, l) => { const i = lineInfo(l); return s + (i.v ? i.v.price * l.qty : 0); }, 0); }
 
-function thumbOf(p) { const c = p && cover(p); return c ? `<img src="${esc(c.thumb)}" alt="">` : `<div class="mini-art">${esc(p ? p.name : '?')}</div>`; }
+function thumbOf(p, colour) { const c = p && (galFor(p, colour)[0] || cover(p)); return c ? `<img src="${esc(c.thumb)}" alt="">` : `<div class="mini-art">${esc(p ? p.name : '?')}</div>`; }
 function bagLineHTML(l, i, edit) {
   const inf = lineInfo(l), p = inf.p;
   const warn = !p ? 'No longer in the shop' : !inf.v ? 'This option isn\'t available any more' : inf.off ? 'No pre-orders in this colour any more' : (inf.cur && inf.left < l.qty) ? (inf.left > 0 ? `Only ${inf.left} left` : 'Sold out') : '';
   return `<div class="bl">
-    <a class="bl-ph" href="#/p/${encodeURIComponent(l.key)}">${thumbOf(p)}</a>
+    <a class="bl-ph" href="#/p/${encodeURIComponent(l.key)}">${thumbOf(p, l.colour)}</a>
     <div class="bl-info"><div class="bl-nm">${esc(p ? p.name : l.key)}</div><div class="bl-op">${esc(optText(l))}</div>
       <div class="bl-ty">${inf.pre ? 'Pre-order' : 'In stock'}${warn ? ` · <b class="bad">${esc(warn)}</b>` : ''}</div>
       ${edit ? `<div class="bl-act"><div class="qty sm"><button aria-label="One less" onclick="bagQty(${i},-1)">−</button><input type="number" inputmode="numeric" min="1" max="999" aria-label="Quantity" value="${l.qty}" onchange="bagSet(${i},this.value)"><button aria-label="One more" onclick="bagQty(${i},1)">+</button></div><button class="lnk" onclick="bagDel(${i})">Remove</button></div>` : `<div class="bl-op">Qty ${l.qty}</div>`}</div>
