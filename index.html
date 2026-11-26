@@ -26,7 +26,7 @@
   .os { font-family: "Oswald", "DIN Condensed", "Arial Narrow", sans-serif; }
   :focus-visible { outline: 2px solid var(--aqua); outline-offset: 3px; }
 
-  /* nav bar: teal, white logo, tracked uppercase links (like the WOAH website) */
+  /* nav bar */
   .bar { position: sticky; top: 0; z-index: 20; background: var(--teal); color: #fff; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
   .bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 66px; }
   .brand img { height: 46px; width: auto; }
@@ -41,14 +41,14 @@
     .bar nav { width: 100%; justify-content: space-between; }
     .bar nav a, .bar nav button { font-size: 13px; padding: 7px 6px; letter-spacing: .04em; }
     .bar .wrap { position: relative; }
-    .bar .bag { position: absolute; right: 16px; top: 10px; margin-left: 0; padding: 5px 8px !important; }   /* cart sits next to the logo, so the links fit on one row */
+    .bar .bag { position: absolute; right: 16px; top: 10px; margin-left: 0; padding: 5px 8px !important; }   /* cart next to the logo so the links fit on one row */
     .bar nav { justify-content: flex-start; gap: 0 4px; }
     .bar nav a { white-space: nowrap; }
   }
   @media (max-width: 440px) { .nav-long { display: none; } .bar nav a, .bar nav button { font-size: 12px; padding: 7px 3px; letter-spacing: .02em; } .bar .bag { padding: 4px 6px !important; } }
   @media (max-width: 360px) { .bar nav a, .bar nav button { font-size: 11px; padding: 7px 2px; letter-spacing: 0; } }
 
-  /* hero: deep navy, big tracked title, paper collage banner */
+  /* hero */
   .hero { background: var(--navy-2); color: #fff; text-align: center; position: relative; overflow: hidden; }
   .hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 90% at 50% 0%, rgba(124,204,203,.22), transparent 70%); }
   .hero .wrap { position: relative; padding-top: 64px; padding-bottom: 70px; }
@@ -61,7 +61,7 @@
   .btn.solid { background: var(--navy); color: #fff; border-color: var(--navy); } .btn.solid:hover:not([disabled]) { background: var(--teal); border-color: var(--teal); }
   .btn[disabled] { opacity: .5; cursor: not-allowed; }
 
-  /* torn-paper banner band (pre-order call-out) */
+  /* banner band (pre-order call-out) */
   .band { background: var(--teal); padding: 34px 16px; display: flex; justify-content: center; }
   .paper { position: relative; display: inline-flex; align-items: center; justify-content: center; text-align: center; min-height: 120px; padding: 26px 56px; color: #fff; text-decoration: none; background: url("img/paper-banner.png") center / 100% 100% no-repeat; filter: drop-shadow(0 6px 14px rgba(0,0,0,.18)); transition: transform .25s; max-width: 100%; }
   @media (max-width: 560px) { .paper { padding: 22px 34px; min-height: 96px; } }
@@ -69,7 +69,7 @@
   .paper span { font-family: "Oswald", sans-serif; font-weight: 400; font-size: clamp(22px, 3.4vw, 32px); letter-spacing: .08em; text-transform: uppercase; line-height: 1.2; text-shadow: 0 1px 6px rgba(0,0,0,.35); }
   .paper span u { text-underline-offset: 4px; }
 
-  /* section titles with the arrow dividers */
+  /* section titles */
   main { padding-bottom: 70px; }
   .sec { padding-top: 64px; scroll-margin-top: 70px; }
   .title { text-align: center; margin-bottom: 36px; }
@@ -84,7 +84,7 @@
   .empty.soon { border: 0; background: var(--soft); padding: 38px 20px; font-size: 15px; }
   .empty.soon b { display: block; font-family: "Oswald", sans-serif; font-weight: 500; font-size: 24px; letter-spacing: .14em; text-transform: uppercase; color: var(--navy); margin-bottom: 4px; }
 
-  /* product cards: photo, name, then quiet details (like the website) */
+  /* product cards */
   .pc { text-decoration: none; display: flex; flex-direction: column; text-align: center; }
   .pc .ph { aspect-ratio: 4 / 5; position: relative; overflow: hidden; background: var(--soft); }
   .pc .ph img { width: 100%; height: 100%; object-fit: contain; transition: transform .6s; }   /* whole photo, portrait or landscape */
@@ -99,7 +99,7 @@
   .pc.soldout .ph img, .pc.soldout .ph .art { filter: grayscale(.9) opacity(.7); }
   @media (max-width: 560px) { .pc .nm { font-size: 18px; } .pc .meta { font-size: 12.5px; } }
 
-  /* placeholder when a product has no photo yet: navy + paper collage */
+  /* no photo yet */
   .art { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: var(--navy); color: #fff; padding: 14px; }
   .art .scrap { width: 92%; aspect-ratio: 661 / 211; background: url("img/paper-band.png") center / 100% 100% no-repeat; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 14%; }
   .art .scrap b { font-family: "Oswald", sans-serif; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; font-size: clamp(14px, 2.2vw, 22px); line-height: 1.1; text-shadow: 0 1px 6px rgba(0,0,0,.4); }
@@ -115,9 +115,9 @@
   @media (max-width: 860px) { .pp { grid-template-columns: minmax(0, 1fr); gap: 22px; } }
   .gal { position: sticky; top: 86px; }
   @media (max-width: 860px) { .gal { position: static; } }
-  .gal .main { aspect-ratio: 4 / 5; overflow: hidden; background: var(--soft); position: relative; touch-action: pan-y; }   /* same frame for every photo, so the page never jumps */
+  .gal .main { aspect-ratio: 4 / 5; overflow: hidden; background: var(--soft); position: relative; touch-action: pan-y; }   /* same frame for every photo so the page never jumps */
   .gal .main img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }   /* whole photo, portrait or landscape */
-  .gal .main { width: 100%; max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px); min-height: 220px; }   /* phone turned sideways: photo still fits on screen */
+  .gal .main { width: 100%; max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px); min-height: 220px; }   /* landscape phones */
   .gal .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 0; background: rgba(255,255,255,.9); color: var(--navy); font-size: 20px; }
   .gal .nav.l { left: 10px; } .gal .nav.r { right: 10px; }
   .thumbs { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px; max-width: 100%; -webkit-overflow-scrolling: touch; }
@@ -326,7 +326,7 @@ function rp(n) { return Number(n || 0).toLocaleString('en-US') + ' IDR'; }
 function toast(t) { const el = document.getElementById('toast'); el.classList.remove('added'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 3200); }
 function title(h, sub, p) { return `<div class="title"><h2>${ARROW_L}<span>${h}</span>${ARROW_R}</h2>${sub ? `<div class="sub">${sub}</div>` : ''}${p ? `<p>${p}</p>` : ''}</div>`; }
 
-// ---- data: show the last catalogue straight away, then fetch the fresh one ----
+// show the cached catalogue first, then fetch
 function load() {
   try { const c = JSON.parse(localStorage.getItem('woahShopCat') || 'null'); if (c && c.products) { CAT = c; route(); } } catch (e) {}
   if (!CAT) route();
@@ -340,11 +340,10 @@ function load() {
     }).catch(err => { if (!CAT) { document.getElementById('view').innerHTML = `<div class="wrap err"><div class="empty"><b>The shop couldn't load right now.</b><br>${esc(err.message)}<br><br><button class="btn solid" onclick="load()">Try again</button></div></div>`; } });
 }
 
-// ---- helpers about products ----
+// product helpers
 function stockOf(p) { return p.variants.reduce((s, v) => s + (v.stock || 0), 0); }
 function cover(p) { return p.photos && p.photos[0]; }
-// Photos for the colour someone picked: that colour's photos first, then the "all colours" ones. Photos get a colour on the
-// dashboard Shop page (one upload box per colour). Products without colour photos just show all their photos.
+// picked colour's photos first, then "all colours"; no colour photos = show all
 function galFor(p, colour) {
   const all = (p && p.photos) || [];
   if (!colour || !all.some(x => x.colour)) return all;
@@ -368,7 +367,7 @@ function cardHTML(p) {
     <div class="nm">${esc(p.name)}</div>${meta ? `<div class="meta">${esc(meta)}</div>` : ''}<div class="pr">${line2}</div></a>`;
 }
 
-// ---- pages ----
+// pages
 function home(brand, focus, keep) {
   product.last = null; pageShell.last = null; setNav(brand);
   const all = CAT ? CAT.products : null, ps = all, pf = bpfx(brand);
@@ -466,13 +465,13 @@ function tEnd(e, key) { if (!TOUCH) return; const t = e.changedTouches[0], dx = 
 function preload(p) { if (preload.done[p.key]) return; preload.done[p.key] = 1; (p.photos || []).forEach(x => { const i = new Image(); i.src = x.url; }); }
 preload.done = {};
 function qty(key, by) { STATE[key].qty = Math.max(1, STATE[key].qty + by); product(key); }
-// typed quantity: redraw after the browser has finished the change/blur, so the page isn't swapped mid-event
+// redraw after change/blur finishes, not mid-event
 function setQty(key, val) { STATE[key].qty = Math.max(1, Math.min(999, Math.floor(Number(val) || 1))); setTimeout(() => product(key), 0); }
 function bagSet(i, val) { const l = BAG[i]; if (!l) return; const by = Math.max(1, Math.floor(Number(val) || 1)) - l.qty; setTimeout(() => bagQty(i, by), 0); }
 function pwToggle(id, b) { const el = document.getElementById(id); if (!el) return; const show = el.type === 'password'; el.type = show ? 'text' : 'password'; b.textContent = show ? 'Hide' : 'Show'; b.setAttribute('aria-label', show ? 'Hide password' : 'Show password'); }
 
 
-// ================= bag, checkout, accounts, my orders =================
+// bag, checkout, accounts, my orders
 const PAY = {
   qris: { t: 'QRIS', d: 'Scan with any banking or e-wallet app (GoPay, OVO, DANA, bank apps…).' },
   xendit: { t: 'Card / e-wallet (Xendit)', d: 'Pay online by card or e-wallet on the WOAH payment page.' },
@@ -529,11 +528,11 @@ function addToBag(key) {
 function bagQty(i, by) { const l = BAG[i]; if (!l) return; const info = lineInfo(l); let q = l.qty + by; if (info.cur && q > info.left) { toast(`Only ${info.left} available.`); q = info.left; } l.qty = Math.max(1, Math.min(999, q)); saveBag(); bagPage(); }
 function bagDel(i) { BAG.splice(i, 1); saveBag(); bagPage(); }
 function bagTotal() { return BAG.reduce((s, l) => { const i = lineInfo(l); return s + (i.v ? i.v.price * l.qty : 0); }, 0); }
-// Optional donation at checkout: added to what they pay, saved on the order as its own "Donation" line.
+// optional donation, saved as its own "Donation" line
 function donOf() { return Math.max(0, Math.min(10000000, Number(CK.don) || 0)); }
 function payTotal() { return bagTotal() + donOf(); }
 function setDon(v) { if (v === 'other') { CK.donOther = true; } else { CK.donOther = false; CK.don = v; } ckSave(); checkoutPage(true); if (v === 'other') { const e = document.getElementById('fDon'); if (e) e.focus(); } }
-function donTyped(v) {   // typing in "Other amount": update the totals without redrawing the page (keeps the keyboard open)
+function donTyped(v) {   // update totals without redrawing (keeps the keyboard open)
   CK.don = Number(String(v).replace(/\D/g, '')) || 0; ckSave();
   const t = rp(payTotal()), set = (id, h) => { const e = document.getElementById(id); if (e) e.innerHTML = h; };
   set('sumDon', donOf() ? `<span>Donation</span><b>${rp(donOf())}</b>` : ''); set('sumTot', `<span>Total</span><b>${t}</b>`);
@@ -573,7 +572,7 @@ function bagPage() {
     <div class="row-btns"><a class="btn" href="#/">Keep shopping</a>${canOrder() ? `<a class="btn solid ${bad ? 'dis' : ''}" href="${bad ? 'javascript:void 0' : '#/checkout'}">Check out</a>` : '<button class="btn solid" disabled>Ordering opens soon</button>'}</div>`);
 }
 
-// ---- accounts ----
+// accounts
 function setAcc(token, acc) { TOKEN = token || ''; ACC = acc || null; try { if (TOKEN) { localStorage.setItem('woahShopToken', TOKEN); localStorage.setItem('woahShopAcc', JSON.stringify(ACC)); } else { localStorage.removeItem('woahShopToken'); localStorage.removeItem('woahShopAcc'); } } catch (e) {} }
 function logout() { const t = TOKEN; setAcc('', null); if (t) api({ action: 'shopAccount', op: 'logout', token: t }).catch(() => {}); route(); }
 function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
@@ -597,10 +596,10 @@ function loginHTML(after) {
     <div class="hint">Forgot your password? Email ${esc(settings().contact)} and we'll sort it out.</div>`;
 }
 
-// ---- checkout ----
+// checkout
 function ckSet(k, v) { CK[k] = v; ckSave(); checkoutPage(true); }
 function ckKeep() { ['fName', 'fEmail', 'fPhone', 'fNote'].forEach(id => { const el = document.getElementById(id); if (el) CK[id] = el.value; }); ckSave(); }
-/* Remember the checkout in this tab, so a phone that reloads the page (e.g. after taking a photo) keeps what they typed and their screenshot */
+/* kept in sessionStorage so a reload (e.g. after taking a photo) keeps the form and screenshot */
 function ckSave() { const k = 'woahCheckout', c = Object.assign({}, CK, { rendered: false }); try { sessionStorage.setItem(k, JSON.stringify(c)); } catch (e) { try { delete c.proof; sessionStorage.setItem(k, JSON.stringify(c)); } catch (x) {} } }
 try { const c = JSON.parse(sessionStorage.getItem('woahCheckout') || 'null'); if (c && typeof c === 'object') CK = Object.assign(CK, c, { rendered: false }); } catch (e) {}
 document.addEventListener('input', e => { if (e.target && /^f(Name|Email|Phone|Note)$/.test(e.target.id)) ckKeep(); });
@@ -673,7 +672,7 @@ function placeOrder() {
     .catch(e => { BUSY = false; if (b) b.disabled = false; msg('ckMsg', e.message, true); });
 }
 
-// ---- after ordering + paying ----
+// after ordering + paying
 function payInfo(pay, total, ref) {
   const s = settings(), amt = Number(total).toLocaleString('en-US');
   if (/cash/i.test(pay)) return `<div class="note">Pay <b>${rp(total)}</b> in cash when you collect.</div>`;
@@ -715,7 +714,7 @@ function donePage(id) {
     <div class="note">${d.items.some(i => i.type === 'Pre-order') ? 'Pre-order items: we\'ll let you know when they arrive and are ready to collect. ' : ''}You can check your order any time under <a href="#/orders">My orders</a> with your order number and ${d.email ? 'email' : 'phone'}.</div>${contactHTML(d.order)}`);
 }
 
-// ---- my orders ----
+// my orders
 let LOOK = null;
 function statusChip(s) { return `<span class="st st-${s.toLowerCase().replace(/[^a-z]+/g, '-')}">${esc(s)}</span>`; }
 function orderCard(o, contact) {
@@ -761,7 +760,7 @@ function route(fromData) {
   const dn = h.match(/^done\/(.+)$/);
   if (h !== 'checkout') CK.rendered = false;
   if (h === 'bag' || h === 'cart') bagPage();
-  else if (h === 'checkout') { if (!fromData || !CK.rendered) checkoutPage(); else checkoutPage(true); }   // fresh data (e.g. bank details just added): redraw, keeping what they typed
+  else if (h === 'checkout') { if (!fromData || !CK.rendered) checkoutPage(); else checkoutPage(true); }   // fresh data: redraw, keeping what they typed
   else if (dn) donePage(decodeURIComponent(dn[1]));
   else if (h === 'orders') { if (!fromData) ordersPage(); }
   else if (m) { const k = decodeURIComponent(m[1]); product(k); if (CAT) setNav(brandOf(CAT.products.find(x => x.key === k))); if (LAST !== h && !fromData) window.scrollTo(0, 0); }
@@ -777,7 +776,7 @@ drawBagCount();
 drawFooter();
 load();
 
-// ---- anonymous visitor count: a random ID per browser + how many pages were seen (no names, no IP) ----
+// anonymous visit count: random ID per browser, no names or IP
 let VID = ''; try { VID = localStorage.getItem('woahVid') || ''; if (!VID) { VID = Math.random().toString(36).slice(2, 10); localStorage.setItem('woahVid', VID); } } catch (e) { VID = Math.random().toString(36).slice(2, 10); }
 let VIEWS = 0;
 function sendHit(n) {
